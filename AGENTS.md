@@ -10,13 +10,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Project guidelines
 
+## Project status
+
+Read [`ROADMAP.md`](./ROADMAP.md) first — it tracks what's done, what's next, and open decisions, so work can resume across sessions and across different AI tools. Update it whenever a milestone completes or a plan changes; don't let it drift out of sync with the code.
+
 ## Formatting
 
 Formatting is enforced by Prettier (`npm run format`, or `npm run format:check` to verify without writing) — see `.prettierrc.json`. `proseWrap: "never"` is set there so docs/README paragraphs are never hard-wrapped at a fixed column: Prettier collapses each paragraph or list item to a single line and lets the editor soft-wrap it. Prettier does not reformat prose inside code comments, though, so apply the same single-line convention to comments by hand.
 
 ## Language
 
-All code, comments, filenames, and docs: English.
+All code, comments, filenames, docs, and site content (UI copy, portfolio text): English.
 
 ## Documentation (`docs/`)
 
@@ -34,3 +38,4 @@ All code, comments, filenames, and docs: English.
 - Keep `.gitignore` scoped to tooling actually in use (npm + GitHub Pages — no Yarn/pnpm/CRA/Vercel boilerplate).
 - Remove unused scaffold/placeholder assets rather than leaving them around.
 - Run `npm run build` and `npm run lint` after non-trivial changes.
+- Desktop icons under `public/icons/desktop/` come from the ["Windows XP High Resolution Icon Pack"](https://github.com/marchmountain/-Windows-XP-High-Resolution-Icon-Pack) by marchmountain, licensed CC0 1.0 Universal (verified by fetching the repo's `LICENSE` file directly).

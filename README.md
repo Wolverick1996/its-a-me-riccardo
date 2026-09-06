@@ -2,7 +2,7 @@
 
 Personal website, built with [Next.js](https://nextjs.org) (App Router, TypeScript, Tailwind CSS) and exported as a static site for [GitHub Pages](https://pages.github.com/).
 
-- `/software` — Windows XP-inspired interactive desktop on wide viewports, Windows Phone-inspired tile UI on mobile. Currently the only implemented section.
+- `/software` — Windows XP-inspired interactive desktop on wide viewports, a Nokia 3310-inspired interactive device on mobile. Currently the only implemented section.
 - `/` redirects to `/software` (see [`docs/02-nextjs-concepts.md`](./docs/02-nextjs-concepts.md)).
 
 ## Getting started
@@ -31,3 +31,7 @@ The custom domain isn't finalized yet, so there's currently no `public/CNAME` fi
 ## Docs
 
 This project doubles as a learning exercise, so `docs/` contains short notes explaining the non-obvious concepts introduced along the way (Next.js Server/Client Components, static export, state management, etc.), each anchored to the actual code it describes.
+
+## Credits
+
+The desktop icons under `public/icons/desktop/` come from the [Windows XP High Resolution Icon Pack](https://github.com/marchmountain/-Windows-XP-High-Resolution-Icon-Pack) by marchmountain, licensed CC0 1.0 Universal.
