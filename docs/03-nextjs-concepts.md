@@ -11,7 +11,7 @@ There's no separate route-config file to maintain by hand: create a folder with 
 
 ## Server Component vs Client Component
 
-Every file under `src/app/` is, by default, a **Server Component**: its code runs only to produce the initial HTML (in our case, during `next build`, since the site is exported statically — see [`docs/03-static-export-github-pages.md`](./03-static-export-github-pages.md)). That code **never ends up in the JavaScript downloaded by the browser**, and it can't use anything that only exists in the browser, like `window`, `localStorage`, or `useEffect`.
+Every file under `src/app/` is, by default, a **Server Component**: its code runs only to produce the initial HTML (in our case, during `next build`, since the site is exported statically — see [`docs/04-static-export-github-pages.md`](./04-static-export-github-pages.md)). That code **never ends up in the JavaScript downloaded by the browser**, and it can't use anything that only exists in the browser, like `window`, `localStorage`, or `useEffect`.
 
 A **Client Component** is the opposite: it's regular React code that runs in the user's browser, can react to clicks, use `useState`/`useEffect`, read `window`. To mark one, add the line `"use client"` at the top of the file — that's exactly what we do in [`src/components/redirect/ClientRedirect.tsx`](../src/components/redirect/ClientRedirect.tsx):
 

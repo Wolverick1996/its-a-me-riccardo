@@ -59,7 +59,7 @@ Installs Node.js 20 on the machine, and enables caching of npm dependencies betw
 - run: npm run build
 ```
 
-`npm ci` installs dependencies exactly as described in `package-lock.json` (more reliable than `npm install` in CI, because it never modifies the lockfile). `npm run build` runs `next build`, which — thanks to `output: 'export'` (see [`docs/03-static-export-github-pages.md`](./03-static-export-github-pages.md)) — generates the `out/` folder with the finished site.
+`npm ci` installs dependencies exactly as described in `package-lock.json` (more reliable than `npm install` in CI, because it never modifies the lockfile). `npm run build` runs `next build`, which — thanks to `output: 'export'` (see [`docs/04-static-export-github-pages.md`](./04-static-export-github-pages.md)) — generates the `out/` folder with the finished site.
 
 ```yaml
 - uses: actions/configure-pages@v5

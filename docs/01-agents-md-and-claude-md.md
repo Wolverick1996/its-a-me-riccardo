@@ -29,7 +29,7 @@ This block is written and re-added by `next dev` ...
 
 In plain terms: this Next.js release (16.3.4 at the time of writing) is recent enough that an AI model's training data might describe an older, different version of Next.js — different config options, different file conventions, sometimes different APIs entirely. So the framework leaves a note for whichever AI agent opens the repo: _"don't trust what you think you know about Next.js — go read the real docs, which are bundled right here in `node_modules/next/dist/docs/`, before writing code."_
 
-This isn't a hypothetical: it's the literal reason [`docs/03-static-export-github-pages.md`](./03-static-export-github-pages.md) turned out accurate. Before wiring up `output: 'export'`, the docs at `node_modules/next/dist/docs/01-app/02-guides/static-exports.md` were read first to confirm the config shape for this exact version, rather than assuming it matched older training data.
+This isn't a hypothetical: it's the literal reason [`docs/04-static-export-github-pages.md`](./04-static-export-github-pages.md) turned out accurate. Before wiring up `output: 'export'`, the docs at `node_modules/next/dist/docs/01-app/02-guides/static-exports.md` were read first to confirm the config shape for this exact version, rather than assuming it matched older training data.
 
 ## Why this file looks "auto-generated" and shouldn't be hand-edited
 

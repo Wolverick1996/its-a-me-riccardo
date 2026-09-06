@@ -1,6 +1,6 @@
 # Roadmap
 
-This file tracks where the project actually stands — read this first (after `AGENTS.md`) when picking the work back up, especially from a different AI session/tool than the one that made the last change.
+This file tracks where the project actually stands — read this after `docs/00-repo-structure.md` and `AGENTS.md` when picking the work back up, especially from a different AI session/tool than the one that made the last change.
 
 ## Vision
 
@@ -18,7 +18,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 - [x] Bootstrap: Next.js (App Router + TS) static export, GitHub Actions deploy to GitHub Pages.
 - [x] Redirect `/` → `/software` (client-side + meta-refresh fallback).
 - [x] Shared content model + apps registry (`src/content/`).
-- [ ] **Desktop XP track** — next up. Not started.
+- [ ] **Desktop XP track** — in progress (step 1 done, see below).
 - [ ] **Nokia 3310 track** — after Desktop XP is fully done.
 - [ ] **Integration**: `ResponsiveShell` (CSS-based switch between the two shells) + final end-to-end QA + `docs/README.md` index.
 
@@ -26,7 +26,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 
 - Next.js App Router + TypeScript, `output: 'export'` for GitHub Pages — no server anywhere (no API routes, no middleware, no server-side redirects).
 - No `public/CNAME` yet — custom domain not finalized.
-- Prettier `proseWrap: "never"` (see `docs/01-prettier.md`): docs/README paragraphs and list items are single-line; the same convention is applied by hand to code comments (Prettier doesn't touch those).
+- Prettier `proseWrap: "never"` (see `docs/02-prettier.md`): docs/README paragraphs and list items are single-line; the same convention is applied by hand to code comments (Prettier doesn't touch those).
 - Everything — code, comments, filenames, docs, and site content/UI copy — is in English (see `AGENTS.md`).
 - Git: never commit or push automatically; suggest a one-line gitmoji-prefixed commit message and let the user commit/push themselves.
 - Asset licensing discipline: verify an explicit open license (CC0 metadata, a repo's own `LICENSE` file, etc.) before using any third-party asset.
@@ -36,7 +36,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 
 ### Desktop XP track (do first, finish completely before touching Nokia)
 
-1. Vendor/scope `xp.css` (`postcss-prefix-selector`, `.win-xp-shell` prefix) so its bare-element rules never leak → new `docs/` note once done.
+1. ✅ Vendor/scope `XP.css` (`postcss-prefix-selector`, `.win-xp-shell` prefix) so its bare-element rules never leak → [`docs/06-css-scoping-xp-css.md`](./docs/06-css-scoping-xp-css.md).
 2. Static `Desktop`/`Taskbar`/`StartMenu`/`DesktopIcon` (no drag yet), wired to the apps already defined in `src/content/apps-registry.ts`. Still needs a Start-button icon — `winxp.svg` was dropped (no Windows logo/flag asset exists in the icon pack, and a trademarked logo is a different risk category from generic UI icons anyway) — decide this fresh here.
 3. Window manager: `react-rnd` + Zustand (`useWindowManagerStore`) → new `docs/` notes (state management, drag/resize).
 4. Real window content components (`ProjectsApp`, `AboutApp`, `ContactApp`, `EducationApp`, `ResumeApp`, `ExperienceApp`).
@@ -52,7 +52,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 
 ### Integration (last)
 
-11. `ResponsiveShell`: CSS-based switch (`hidden md:block` / `block md:hidden`) between Desktop XP and Nokia — never `window.matchMedia` (would cause a hydration mismatch on this fully static/prerendered site, see `docs/02-nextjs-concepts.md`).
+11. `ResponsiveShell`: CSS-based switch (`hidden md:block` / `block md:hidden`) between Desktop XP and Nokia — never `window.matchMedia` (would cause a hydration mismatch on this fully static/prerendered site, see `docs/03-nextjs-concepts.md`).
 12. Final end-to-end QA (see the Verification checklist below) and a `docs/README.md` index of every note in `docs/`, in reading order.
 
 ## Verification checklist (once both shells exist)
@@ -73,7 +73,8 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 
 ## Where to look
 
-- `AGENTS.md` — conventions every AI/human working on this repo should follow (language, formatting, git workflow, housekeeping, asset provenance). Read this first.
-- `docs/` — concept notes in reading order: `00` (AGENTS.md/CLAUDE.md), `01` (Prettier), `02` (Next.js concepts), `03` (static export), `04` (CI/CD). More will be added as the Desktop/Nokia tracks progress (see the roadmap detail above for which ones are coming).
+- `docs/00-repo-structure.md` — a map of the repo. Read this first.
+- `AGENTS.md` — conventions every AI/human working on this repo should follow (language, formatting, git workflow, housekeeping, asset provenance). Read this second.
+- `docs/` — concept notes in reading order after that. More will be added as the Desktop/Nokia tracks progress (see the roadmap detail above for which ones are coming).
 - `README.md` — how to run/build/deploy the site, plus asset credits.
 - `src/content/` — the shared data model and app registry; the single source of truth both shells read from.

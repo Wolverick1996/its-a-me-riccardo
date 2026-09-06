@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
 };
 ```
 
-`output: "export"` tells Next.js: "don't assume there will be a server after the build — generate every final HTML file ahead of time, during `next build`, so I can be served by any static host." The result lands in the `out/` folder (which you'll find in `.gitignore` — it's a generated artifact, not something to commit: the CI pipeline generates it on every deploy, see [`docs/04-ci-cd-github-actions.md`](./04-ci-cd-github-actions.md)).
+`output: "export"` tells Next.js: "don't assume there will be a server after the build — generate every final HTML file ahead of time, during `next build`, so I can be served by any static host." The result lands in the `out/` folder (which you'll find in `.gitignore` — it's a generated artifact, not something to commit: the CI pipeline generates it on every deploy, see [`docs/05-ci-cd-github-actions.md`](./05-ci-cd-github-actions.md)).
 
 The other two options are direct consequences of the first:
 
@@ -34,7 +34,7 @@ With a static export, anything that requires a server **at request time** (as op
 - **`redirects()`/`rewrites()`** defined in `next.config.ts`
 - **Server Actions**, **dynamic cookies**, **ISR** (periodic content regeneration)
 
-For us, this has one very concrete consequence: **we can't do a "real" redirect** from the site's root (`/`) to `/software` (the kind of thing you'd do in a server-backed site with a simple `redirects()` entry in `next.config.ts`, or with middleware). We have to simulate it entirely in the browser, with a page that redirects itself as soon as it loads — that's the topic of [`docs/02-nextjs-concepts.md`](./02-nextjs-concepts.md).
+For us, this has one very concrete consequence: **we can't do a "real" redirect** from the site's root (`/`) to `/software` (the kind of thing you'd do in a server-backed site with a simple `redirects()` entry in `next.config.ts`, or with middleware). We have to simulate it entirely in the browser, with a page that redirects itself as soon as it loads — that's the topic of [`docs/03-nextjs-concepts.md`](./03-nextjs-concepts.md).
 
 ## In practice: what `next build` generates
 
