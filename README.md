@@ -36,4 +36,10 @@ This project doubles as a learning exercise, so `docs/` contains short notes exp
 
 The desktop icons under `public/icons/desktop/` come from the [Windows XP High Resolution Icon Pack](https://github.com/marchmountain/-Windows-XP-High-Resolution-Icon-Pack) by marchmountain, licensed CC0 1.0 Universal.
 
+The site favicon (`src/app/icon.svg`) is the Windows XP flag emblem from the "Plasma5-WinXPSVG" icon theme by blackysgate.de, licensed CC0 1.0 Universal (verified via the file's own embedded RDF metadata).
+
 The Desktop XP window styling is built on [XP.css](https://botoxparty.github.io/XP.css/) (MIT). The "Pixelated MS Sans Serif" font it bundles is a fan recreation by ["lou" on FontStruct](https://fontstruct.com/fontstructions/show/1384746), licensed CC BY-SA 3.0 — not the real Microsoft font. The "Perfect DOS VGA 437 Win" font is by Zeh Fernando, free for personal and commercial use.
+
+The taskbar Start button under `public/start-button/` is cropped from "XP BIG text & flag 51pixels.png", an attachment shared by forum user juniper7 in the ["XP Button Biggies"](https://coddec.github.io/Classic-Shell/www.classicshell.net/forum/viewtopic258f.html?p=35366) thread on the Classic Shell forum (Jan 29, 2018).
+
+`public/wallpaper/Bliss.jpg` is the real Windows XP default wallpaper photo, by Charles O'Rear/Getty Images.

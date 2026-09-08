@@ -18,7 +18,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 - [x] Bootstrap: Next.js (App Router + TS) static export, GitHub Actions deploy to GitHub Pages.
 - [x] Redirect `/` → `/software` (client-side + meta-refresh fallback).
 - [x] Shared content model + apps registry (`src/content/`).
-- [ ] **Desktop XP track** — in progress (step 1 done, see below).
+- [ ] **Desktop XP track** — in progress (steps 1-2 done, step 5 substantially underway, see below).
 - [ ] **Nokia 3310 track** — after Desktop XP is fully done.
 - [ ] **Integration**: `ResponsiveShell` (CSS-based switch between the two shells) + final end-to-end QA + `docs/README.md` index.
 
@@ -37,7 +37,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 ### Desktop XP track (do first, finish completely before touching Nokia)
 
 1. ✅ Vendor/scope `XP.css` (`postcss-prefix-selector`, `.win-xp-shell` prefix) so its bare-element rules never leak → [`docs/06-css-scoping-xp-css.md`](./docs/06-css-scoping-xp-css.md).
-2. Static `Desktop`/`Taskbar`/`StartMenu`/`DesktopIcon` (no drag yet), wired to the apps already defined in `src/content/apps-registry.ts`. Still needs a Start-button icon — `winxp.svg` was dropped (no Windows logo/flag asset exists in the icon pack, and a trademarked logo is a different risk category from generic UI icons anyway) — decide this fresh here.
+2. ✅ Static `Desktop`/`Taskbar`/`StartMenu`/`DesktopIcon` (no drag yet), wired to the apps from `src/content/apps-registry.ts`. Windows open (via desktop icon double-click or Start menu), close, and focus/cascade, all with plain `useState` — no Zustand yet, that's step 3.
 3. Window manager: `react-rnd` + Zustand (`useWindowManagerStore`) → new `docs/` notes (state management, drag/resize).
 4. Real window content components (`ProjectsApp`, `AboutApp`, `ContactApp`, `EducationApp`, `ResumeApp`, `ExperienceApp`).
 5. Desktop visual polish (palette, wallpaper, details) + Desktop-specific QA.
@@ -67,9 +67,8 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 ## Open questions / pending decisions
 
 - Custom domain not chosen — no `public/CNAME` yet (see `README.md`).
-- Start-button icon for the Desktop taskbar has no asset yet — decide during Desktop track step 2.
 - Nokia display font not chosen yet — needs a license check before adoption (see step 9 above).
-- Whether to commit the full Windows XP High Resolution Icon Pack (~172MB/557 files) to the repo, or keep cherry-picking individual files as needed, hasn't been decided yet — it's currently left unstaged/untracked at the repo root.
+- ~~Whether to commit the full Windows XP High Resolution Icon Pack (~172MB/557 files) to the repo, or keep cherry-picking individual files as needed~~ — decided: keep cherry-picking, the full pack (plus the separate `reference-icons/` pack the favicon came from) stays local-only, now `.gitignore`d rather than just untracked.
 
 ## Where to look
 

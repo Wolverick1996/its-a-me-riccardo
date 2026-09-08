@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "It's-a me, Riccardo!",
+  title: "RickXP",
   description: "Riccardo Corona's personal website — software portfolio.",
 };
 

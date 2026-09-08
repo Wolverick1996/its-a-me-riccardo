@@ -1,7 +1,7 @@
+import "@/styles/desktop/XP-scoped.css";
+import "@/styles/desktop/desktop-shell.css";
+import Desktop from "@/components/desktop/Desktop";
+
 export default function SoftwarePage() {
-  return (
-    <main className="flex min-h-screen items-center justify-center p-8">
-      <p>Software portfolio — under construction.</p>
-    </main>
-  );
+  return <Desktop />;
 }

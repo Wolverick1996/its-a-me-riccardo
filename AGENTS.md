@@ -16,7 +16,7 @@ Read [`docs/00-repo-structure.md`](./docs/00-repo-structure.md) for a map of the
 
 ## Formatting
 
-Formatting is enforced by Prettier (`npm run format`, or `npm run format:check` to verify without writing) — see `.prettierrc.json`. `proseWrap: "never"` is set there so docs/README paragraphs are never hard-wrapped at a fixed column: Prettier collapses each paragraph or list item to a single line and lets the editor soft-wrap it. Prettier does not reformat prose inside code comments, though, so apply the same single-line convention to comments by hand.
+Formatting is enforced by Prettier (`npm run format`, or `npm run format:check` to verify without writing) — see `.prettierrc.json`. `proseWrap: "never"` is set there so docs/README paragraphs are never hard-wrapped at a fixed column: Prettier collapses each paragraph or list item to a single line and lets the editor soft-wrap it. Prettier does not reformat prose inside code comments, though, so apply the same single-line convention to comments by hand: one comment, one line, however long, rather than hard-wrapped at some fixed column — the editor soft-wraps it the same way it does docs/README prose.
 
 ## Language
 

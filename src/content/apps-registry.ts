@@ -38,7 +38,7 @@ export const apps: AppDefinition[] = [
     id: "resume",
     kind: "resume",
     title: "Resume",
-    desktopIcon: "/icons/desktop/Document%20Search.png",
+    desktopIcon: "/icons/desktop/Generic%20Document.png",
     enabled: true,
     defaultWindowSize: { width: 480, height: 600 },
   },
