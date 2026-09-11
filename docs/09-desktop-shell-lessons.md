@@ -4,7 +4,7 @@ A short list of genuinely reusable takeaways from getting [`desktop-shell.css`](
 
 ## Measure against a real reference, don't guess from memory
 
-Every color, gradient, spacing, and radius meant to mimic real XP was checked against an actual screenshot with [Pillow](https://pillow.readthedocs.io/) rather than eyeballed from memory. Pillow is a Python image-processing library — `im.getpixel((x, y))` reads one pixel's exact color, `im.crop(box)` cuts out a region. Early guesses were consistently, measurably off once checked this way. This only works from a real file on disk, though: an image pasted into chat can be viewed but not read pixel-by-pixel.
+Every color, gradient, spacing, and radius meant to mimic real XP was checked against an actual screenshot rather than eyeballed from memory — early guesses were consistently, measurably off once checked this way. See [docs/07-verifying-ui-fidelity.md](./07-verifying-ui-fidelity.md) for how.
 
 ## Prefer a real asset over a parametric approximation for complex, hand-drawn visuals
 
@@ -42,7 +42,7 @@ Positioned elements always paint above in-flow ones, regardless of source order 
 }
 ```
 
-If some element has both classes `a` and `b`, it ends up `position: absolute` — not because `.b` is "more specific" (both are single class selectors, equally specific), but simply because `.b` is declared later in the file. Swap the order and the element's position changes with it, with no error or warning either way. `.window` and `.desktop-window` are the same DOM node in this project (`Window.tsx` puts both classes on one div), and exactly this collision once broke the window's positioning until the redundant rule was removed. Worth remembering whenever the same element carries more than one class with overlapping rules.
+If some element has both classes `a` and `b`, it ends up `position: absolute` — not because `.b` is "more specific" (both are single class selectors, equally specific), but simply because `.b` is declared later in the file. Swap the order and the element's position changes with it, with no error or warning either way. `Window.tsx` once put both `.window` and a now-removed `.desktop-window` class on the same div, each with its own conflicting `position` rule, and exactly this collision broke the window's positioning until the redundant rule was found and deleted. Worth remembering whenever the same element carries more than one class with overlapping rules.
 
 ## Flexbox's `min-width: auto` default blocks shrinking of anything with content
 

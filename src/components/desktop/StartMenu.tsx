@@ -21,7 +21,7 @@ export default function StartMenu({
             className="start-menu-item"
             onClick={() => onSelect(app.id)}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server, see docs/04-static-export-github-pages.md */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server */}
             <img
               src={app.desktopIcon}
               alt=""

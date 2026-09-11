@@ -1,6 +1,6 @@
-/*! Hand-authored chrome for the Desktop XP shell that XP.css doesn't provide (it styles individual widgets like windows/buttons, not a whole desktop: no taskbar, start button, start menu, or icon grid). Scoped under .win-xp-shell for the same reason XP-scoped.css is — see docs/06-css-scoping-xp-css.md. */
+/*! Hand-authored chrome for the Desktop XP shell that XP.css doesn't provide (it styles individual widgets like windows/buttons, not a whole desktop: no taskbar, start button, start menu, or icon grid). Scoped under .win-xp-shell for the same reason XP-scoped.css is. */
 
-/* Every length below is written as `calc(<original-1024x768-px-value> * var(--xp-scale))` instead of a plain px value. The goal isn't "adapt to this device's pixel density" — browsers already do that automatically (that's what devicePixelRatio and the CSS reference pixel are for: a `30px` element already looks about the same physical size on a Retina laptop as on an old 96 DPI CRT, and no web API exposes a monitor's true physical DPI to override that anyway). The actual goal is reproducing the PROPORTIONS of a real XP desktop at its most common resolution, 1024x768, on whatever viewport this page is actually shown at: on a huge modern display, a literal `30px` taskbar reads as tiny relative to the screen, because it was never *meant* to occupy that little of a much bigger canvas. Anchoring every measurement to viewport height instead keeps every element's share of the screen identical to how it looked on a 1024x768 monitor, at any actual viewport size — a faithful scaled miniature, not a fixed-size crop. Every other px value inherited as-is from the vendored XP-scoped.css (window borders, form control sizing, etc.) is intentionally left unscaled — retrofitting that across a 260KB vendored file is out of scope here; only this file's own chrome, plus each window's instance size (src/components/desktop/Window.tsx), is scaled. */
+/* Every length below is `calc(<original-1024x768-px-value> * var(--xp-scale))` instead of a plain px value — not a DPI fix (browsers already handle pixel density), but a way to keep this shell's chrome at the same PROPORTIONS real XP's chrome had at its common 1024x768 resolution, on any actual viewport size. Anchored on viewport height specifically, since this shell's chrome stacks vertically (taskbar, icon grid rows, cascaded windows). Every other px value inherited as-is from the vendored XP-scoped.css is intentionally left unscaled — retrofitting that across a 260KB vendored file is out of scope here; only this file's own chrome, plus each window's instance size (src/components/desktop/Window.tsx), is scaled. */
 .win-xp-shell {
   --xp-scale: calc(100vh / 768);
 
@@ -21,7 +21,7 @@
     rgb(121, 150, 222) 25%, rgb(123, 153, 225) 56%, rgb(130, 169, 233) 81%,
     rgb(128, 165, 231) 89%, rgb(123, 150, 225) 94%, rgb(122, 147, 223) 97%,
     rgb(171, 186, 227) 100%;
-  /* Every offset/blur/spread below is `calc(<reference px> * var(--xp-scale))`, same convention as everything else in this file (see the top-of-file comment and docs/07-dpi-scaling.md) — these came in as literal px values, which would've stayed pinned to their 1024x768-reference size rather than scaling with the rest of the shell. Gradient stops (above) don't need this: percentages (and the equivalent-to-0% "0px" first stop in --xp-gradient) are positions along the gradient line, already relative to the element's own size. */
+  /* Every offset/blur/spread below is `calc(<reference px> * var(--xp-scale))`, same convention as everything else in this file — these came in as literal px values, which would've stayed pinned to their 1024x768-reference size rather than scaling with the rest of the shell. Gradient stops (above) don't need this: percentages (and the equivalent-to-0% "0px" first stop in --xp-gradient) are positions along the gradient line, already relative to the element's own size. */
   --tile-box-shadow:
     rgb(0 0 0 / 30%) calc(-1 * var(--xp-scale)) 0 inset,
     rgb(255 255 255 / 20%) calc(1 * var(--xp-scale)) calc(1 * var(--xp-scale))
@@ -42,6 +42,8 @@
   background-size: 100vw max(100vh, calc(40.21vw + 50vh));
   background-position: center;
   background-repeat: no-repeat;
+  /* Backstop for Desktop.tsx's own `event.preventDefault()` on the marquee-drag mousedown — belt and suspenders against the browser's native text-selection gesture, which a mousedown-and-drag would otherwise start regardless, highlighting icon labels in the browser's own selection color instead of (or alongside) the marquee's. */
+  user-select: none;
 }
 
 /* XP-scoped.css styles every bare <button> with its classic beveled chrome (background, inset box-shadow, min-width/height, padding) — appropriate for a real dialog button, wrong for the custom controls below, which happen to use <button> for built-in keyboard/click semantics. Reset the inherited chrome here (same specificity as XP-scoped.css's rule, so source order decides — this block must stay above the rules that follow) and let each control re-style itself from a blank slate. */
@@ -56,7 +58,7 @@
   padding: 0;
 }
 
-/* XP-scoped.css's :hover/:focus/:active button states (e.g. `button:not(:disabled):hover` or `:active`, which set their own background/box-shadow) are MORE specific than a single custom class — the reset above only wins for the base state, so the vendor's amber hover glow, active-state background, and focus box-shadow still leak through on interaction. Matching that specificity selector-for-selector would be fragile (it'd break again if XP-scoped.css's selectors ever change), so !important is the pragmatic tool here: these vendor states should never apply to controls XP.css was never meant to style. Controls with their own intentional background (start-button, taskbar-window-button) mark every one of their own background declarations !important too, so they still win over this blanket reset — see below. */
+/* XP-scoped.css's :hover/:focus/:active button states (e.g. `button:not(:disabled):hover` or `:active`, which set their own background/box-shadow) are MORE specific than a single custom class — the reset above only wins for the base state, so the vendor's amber hover glow, active-state background, and focus box-shadow still leak through on interaction. Matching that specificity selector-for-selector would be fragile (it'd break again if XP-scoped.css's selectors ever change), so !important is the pragmatic tool here: these vendor states should never apply to controls XP.css was never meant to style. Controls with their own intentional background (start-button, taskbar-window-button) mark every one of their own background declarations !important too, so they still win over this blanket reset. */
 .win-xp-shell .desktop-icon,
 .win-xp-shell .start-button,
 .win-xp-shell .taskbar-window-button,
@@ -80,14 +82,23 @@
   font-family: "Pixelated MS Sans Serif", Arial;
 }
 
-/* Real Windows' default desktop icon grid cell is 75x75px at the 1024x768 reference (the IconSpacing/IconVerticalSpacing registry defaults, both -1125 twips = 75px — HKCU\Control Panel\Desktop\WindowMetrics). That spacing already accounts for the visual gap between icons, so the grid needs no extra gap on top of it. 8 explicit rows, auto-flowing into new columns as needed, is what actually guarantees "8 rows" — a flex-wrap height guess would only approximate it depending on content. */
+/* 75px is real Windows' default icon-grid cell (IconSpacing/IconVerticalSpacing registry default, -1125 twips = 75px). Columns keep it exactly — grid-auto-flow adds columns as needed, so there's no fixed count to leave a literal 75px short. Rows are fixed at 9 (722 / 75 ≈ 9.6 fit in the 768 − 30 − 8 − 8 = 722px usable above the taskbar, at the reference resolution), but each row's height is stretched to 722/9 instead of the literal 75, so the 9 rows fill that height exactly rather than leaving an unfilled remainder. */
 .win-xp-shell .desktop-icons {
   --icon-cell: calc(75 * var(--xp-scale));
+  --icon-row-height: calc(((768 - 30 - 8 - 8) / 9) * var(--xp-scale));
   display: grid;
-  grid-template-rows: repeat(8, var(--icon-cell));
+  grid-template-rows: repeat(9, var(--icon-row-height));
   grid-auto-flow: column;
   grid-auto-columns: var(--icon-cell);
   padding: calc(8 * var(--xp-scale));
+}
+
+/* The rubber-band selection rectangle (Desktop.tsx computes its geometry from real mouse coordinates; this just paints it). `position: fixed` matches the `clientX`/`clientY` coordinate space it's positioned from. `pointer-events: none` so the rectangle itself is never what a mouseover/mouseup lands on — the icons underneath still need to receive those. Low z-index (below every window's own, which starts at 10) so it's drawn under any open window it's dragged across, same as real XP's desktop-layer marquee. A plain dotted outline, no fill — pixel-checked against a real screenshot: the wallpaper inside the rectangle comes back the same color as just outside it, no blue tint. */
+.win-xp-shell .xp-marquee {
+  position: fixed;
+  z-index: 1;
+  border: calc(1 * var(--xp-scale)) dotted #000;
+  pointer-events: none;
 }
 
 .win-xp-shell .desktop-icon {
@@ -134,23 +145,25 @@
   position: absolute;
   inset-inline: 0;
   bottom: 0;
+  /* Each window carries a real numeric z-index, so the taskbar needs one of its own well above any of them — otherwise a window mid-focus-bump could end up compositing on top of it. */
+  z-index: 1000;
   height: calc(30 * var(--xp-scale));
   display: flex;
   /* Most children are centered on the cross axis (their height is smaller than the taskbar's); only the Start button opts into full-height via its own `align-self: stretch` below. `stretch` here on the container would also apply to those smaller-than-taskbar children, and per the flexbox spec an item with an explicit (non-auto) height doesn't actually stretch — it falls back to flex-start (the top) instead of staying centered, which pinned everything to the top edge. */
   align-items: center;
-  /* No gap and no inline padding — the Start button sits flush against the left edge, the taskbar-window-buttons sit flush against each other and against the Start button (no divider between them either; see Taskbar.tsx), and the tray's own `margin-left` below is what actually separates it from the last button, not spacing here. */
+  /* No gap and no inline padding — the Start button sits flush against the left edge, the taskbar-window-buttons sit flush against each other and against the Start button (no divider between them either), and the tray's own `margin-left` below is what actually separates it from the last button, not spacing here. */
   background: linear-gradient(180deg, var(--xp-gradient));
 }
 
-/* A hand-built gradient + clip-path polygon (see git history) kept missing the real shape and light response no matter how many times it was re-measured against reference screenshots — XP's own Start button is a raster asset with its own baked-in light/shape logic, not something a parametric shape reproduces convincingly. Using the real thing instead: public/start-button/{neutral,hover,click}.png are cropped straight from a real screenshot (a forum compilation of XP-era Start button skins — see docs/08-taskbar-fidelity.md for provenance/license caveats), one 177x61 frame per interaction state, including the icon and "start" label already baked in. */
+/* A hand-built gradient + clip-path version couldn't match XP's baked-in shape/lighting, so this uses real cropped screenshots instead: public/start-button/{neutral,hover,click}.png, one 177x61 frame per interaction state (icon and "start" label already baked into the image). */
 .win-xp-shell .start-button {
   box-sizing: border-box;
-  /* Full taskbar height, edge to edge — the one taskbar child that opts out of the parent's `center` alignment (see .taskbar above). Width is that same height times 177/61 — the source frames' exact aspect ratio — so the button scales without distorting the baked-in art (30 * 177 / 61 ≈ 87.05). */
+  /* Full taskbar height, edge to edge — the one taskbar child that opts out of the parent's `center` alignment. Width is that same height times 177/61 — the source frames' exact aspect ratio — so the button scales without distorting the baked-in art (30 * 177 / 61 ≈ 87.05). */
   align-self: stretch;
   width: calc(87.05 * var(--xp-scale));
-  /* Never shrinks, even when the taskbar itself gets too narrow to fit everything — the open-window tiles give way instead (see .taskbar-window-button below), the Start button never does. */
+  /* Never shrinks, even when the taskbar itself gets too narrow to fit everything — the open-window tiles give way instead, the Start button never does. */
   flex-shrink: 0;
-  /* Space before the first taskbar-window-button — pixel-measured from a real XP screenshot (see docs/08-taskbar-fidelity.md) at ~12px reference, not the originally guessed 10px "matches the tray's own padding" assumption. */
+  /* Space before the first taskbar-window-button — pixel-measured from a real XP screenshot at ~12px reference. */
   margin-inline-end: calc(12 * var(--xp-scale));
   background-image: url("/start-button/neutral.png");
   background-size: 100% 100%;
@@ -176,10 +189,10 @@
   /* Height isn't a fixed number — the tile opts out of the taskbar's `align-items: center` (like the Start button) and instead gets top/bottom margins matched to where `--xp-gradient` itself visually settles: bright transition-to-flat around 18% of the taskbar's height, flat-to-darkening around 89% (closer to where the transition has mostly finished than to where it's perfectly flat — sitting right at the fully-flat point left the tile looking a touch too short). Stretched with non-auto block-axis margins, the tile's height becomes "whatever's left" of the taskbar's own height after those margins — 18% and 11% of 30px — rather than an independently guessed height. */
   align-self: stretch;
   margin-block: calc(5 * var(--xp-scale)) calc(3 * var(--xp-scale));
-  /* No spacing between tiles — confirmed against a real screenshot (see docs/08-taskbar-fidelity.md), they sit directly flush against each other. */
+  /* No spacing between tiles — confirmed against a real screenshot, they sit directly flush against each other. */
   margin-inline-end: 0;
   padding-inline: calc(6 * var(--xp-scale));
-  /* Fixed, not max-width — pixel-measured from a real screenshot (see docs/08-taskbar-fidelity.md): every open-window tile is the same width regardless of label length, with short labels like "Musica campione" leaving visible blank space rather than shrinking the button down to fit, unlike our own version had been doing. 160 happened to already be the right number, just applied as the wrong property. Expressed as a flex-basis (`flex: 0 1 <width>`) rather than a plain `width`, though: when the taskbar itself gets too narrow to fit every tile at 160px, real XP shrinks the tiles instead of overflowing or shrinking the Start button — and since every tile shares this same flex-shrink factor and starting basis, they shrink by the same amount and stay equal width to each other. `min-width: 0` overrides the flex-item default of `auto` (effectively "don't shrink past your content's natural size"), which would otherwise put a floor under the shrinking well above 0 and stop the tiles from ever getting as narrow as real XP's do; the label's own `text-overflow: ellipsis` (below) is what keeps the (now-clipped) text readable instead. */
+  /* Fixed, not max-width — pixel-measured: every open-window tile is the same 160px width regardless of label length, with short labels leaving visible blank space rather than shrinking to fit. Expressed as a flex-basis (`flex: 0 1 160px`) so when the taskbar gets too narrow, real XP shrinks every tile together (equal width) instead of overflowing or shrinking the Start button. `min-width: 0` is needed to let that shrinking go below the label's natural width — the label's own `text-overflow: ellipsis` (below) keeps the clipped text readable. */
   flex: 0 1 calc(160 * var(--xp-scale));
   min-width: 0;
   border-radius: calc(2 * var(--xp-scale));
@@ -236,6 +249,8 @@
 
 .win-xp-shell .start-menu {
   position: absolute;
+  /* Same reasoning as .taskbar's z-index above — sits above every window regardless of their own (much lower) z-index values. */
+  z-index: 1001;
   bottom: calc(30 * var(--xp-scale));
   left: calc(2 * var(--xp-scale));
   width: calc(240 * var(--xp-scale));
@@ -287,7 +302,7 @@
   height: calc(20 * var(--xp-scale));
 }
 
-/* XP-scoped.css's control buttons are natively 21x21px — that's not a guess, it's the size the button's own SVG icon backgrounds are drawn at (viewBox="0 -0.5 21 21"), confirmed by reading the file. Scaling the box here also needs `background-size: contain` (XP-scoped.css never sets one, so the icon would otherwise stay pinned at its native 21px instead of following the box). What actually looked cramped originally was XP-scoped.css's own title-bar padding (3px 2px 3px 3px, i.e. 21+3+3=27px total at the reference resolution); 30px (matching the taskbar) fixes that while keeping the same 21px:30px ratio the library was built around. */
+/* XP-scoped.css's control buttons are natively 21x21px (its SVG icon backgrounds are drawn at viewBox="0 -0.5 21 21"). Scaling the box here also needs `background-size: contain`, since XP-scoped.css never sets one. 30px (matching the taskbar) avoids the button reading cramped against its title-bar padding (3px each side, 27px total at reference size), while keeping the library's 21:30 ratio. */
 .win-xp-shell .title-bar {
   /* XP-scoped.css itself sets a hardcoded `height: 21px` here (its own Luna-theme title-bar rule) — with box-sizing: border-box that clips the scaled padding/buttons below to a fixed 21px regardless of --xp-scale, so height needs its own override, not just padding. */
   height: calc(30 * var(--xp-scale));
@@ -313,7 +328,7 @@
   cursor: pointer;
 }
 
-/* XP-scoped.css draws these three buttons from its own embedded SVG data URIs (including separate, more "lit up" artwork for :hover) — replaced here with the same Windows XP High Resolution Icon Pack PNGs already used for desktop/taskbar icons elsewhere (CC0, see README credits), rather than mixing two different icon styles. :hover is pinned to the same image too, so it doesn't fall back to the vendor's own glow icon. */
+/* XP-scoped.css draws these three buttons from its own embedded SVG data URIs (including separate, more "lit up" artwork for :hover) — replaced here with the same Windows XP High Resolution Icon Pack PNGs already used for desktop/taskbar icons elsewhere (CC0), rather than mixing two different icon styles. :hover is pinned to the same image too, so it doesn't fall back to the vendor's own glow icon. */
 .win-xp-shell .title-bar-controls button[aria-label="Minimize"],
 .win-xp-shell .title-bar-controls button[aria-label="Minimize"]:hover {
   background-image: url("/icons/desktop/Minimize.png");
@@ -324,13 +339,43 @@
   background-image: url("/icons/desktop/Maximize.png");
 }
 
+.win-xp-shell .title-bar-controls button[aria-label="Restore"],
+.win-xp-shell .title-bar-controls button[aria-label="Restore"]:hover {
+  background-image: url("/icons/desktop/Restore.png");
+}
+
 .win-xp-shell .title-bar-controls button[aria-label="Close"],
 .win-xp-shell .title-bar-controls button[aria-label="Close"]:hover {
   background-image: url("/icons/desktop/Exit.png");
 }
 
+/* :hover comes first here (not after :active, its usual position elsewhere in this file) so that when the mouse is held down while over the button — :hover and :active both matching at once — the sunken look below wins for `filter`, the one property this rule shares with :active: same specificity, so without this ordering the later rule alone would decide it. The box-shadow is a uniform ring (equal on all 4 sides), not a directional light/dark bevel pair: at this button's ~21px size, a highlight brighter on two particular sides reads as the icon itself sitting off-center on those sides, not as a bevel. A flat ring plus the brightness filter below reads as a state change without that illusion. */
 .win-xp-shell .title-bar-controls button:hover {
   filter: brightness(1.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* :active needs its own pass, same reason as .start-button's :active rule further up: XP-scoped.css has a `button[aria-label="X"]:not(:disabled):active` rule per icon (higher specificity than the plain base-state rule above) pointing at its own pixelated SVG, plus a separate generic `button:not(:disabled):active` rule that sets the `background` SHORTHAND — resetting background-size along with whatever it does to background-image. Both need beating, hence both properties, both !important, for every icon and not just the currently-pressed one (a mouse held down while the cursor slides between buttons can trigger :active on more than one). Real XP baked its "pressed" look into per-state button artwork (raised at rest, sunken while held) rather than a generic effect — our icons are flat glyphs with no button chrome baked in, so the dimmed ring here stands in for that. box-shadow also needs !important here: XP-scoped.css has its own `:active, :focus, :hover` rule setting `box-shadow: none !important` on this same selector. */
+.win-xp-shell .title-bar-controls button:active {
+  background-size: contain !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45) !important;
+  filter: brightness(0.85);
+}
+
+.win-xp-shell .title-bar-controls button[aria-label="Minimize"]:active {
+  background-image: url("/icons/desktop/Minimize.png") !important;
+}
+
+.win-xp-shell .title-bar-controls button[aria-label="Maximize"]:active {
+  background-image: url("/icons/desktop/Maximize.png") !important;
+}
+
+.win-xp-shell .title-bar-controls button[aria-label="Restore"]:active {
+  background-image: url("/icons/desktop/Restore.png") !important;
+}
+
+.win-xp-shell .title-bar-controls button[aria-label="Close"]:active {
+  background-image: url("/icons/desktop/Exit.png") !important;
 }
 
 .win-xp-shell .title-bar-title {
@@ -353,14 +398,7 @@
   flex-shrink: 0;
 }
 
-.win-xp-shell .desktop-window {
-  /* transform (the centering + cascade offset, both scaled) is set inline per window, see Window.tsx */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-}
-
-/* The window's own bevel is XP-scoped.css's native one, correct as-is — a custom `--window-box-shadow` was tried first (all-blue inset layers meant to represent the "active" state from a real reference) but rendered as a flat, uniform blue-tinted rectangle rather than a proper light/dark bevel once actually visible on screen, so that's gone. What's still missing from the native rule: it never dims for an inactive window (XP-scoped.css has no such state at all), so its exact colors are replicated here on a ::before overlay, which is what actually gets faded — fading .window directly would dim the title bar text and window-body content along with the border, not just the border. These offsets are deliberately NOT run through --xp-scale, unlike most of this file: they're standing in for a value XP-scoped.css itself never scales either (this project's convention leaves the vendored file's own px values untouched — see the top-of-file comment), and scaling them anyway made the border visibly thicken at anything above the 768px reference height. */
+/* The window's own bevel is XP-scoped.css's native one, correct as-is. What's still missing from the native rule: it never dims for an inactive window (XP-scoped.css has no such state at all), so its exact colors are replicated here on a ::before overlay, which is what actually gets faded — fading .window directly would dim the title bar text and window-body content along with the border, not just the border. These offsets are deliberately NOT run through --xp-scale, unlike most of this file: they stand in for XP-scoped.css's own unscaled border values, and scaling them anyway made the border visibly thicken at anything above the 768px reference height. */
 .win-xp-shell .window {
   box-shadow: none;
 }
@@ -394,7 +432,7 @@
 }
 
 .win-xp-shell .window.inactive::before {
-  /* Not an opacity fade of the six-layer active bevel (tried at both 0.5 and 0.25) — that approach couldn't work at any value: fading toward the background still left a visible seam exactly where this overlay (covering the window body) meets .title-bar's own border above (overridden separately, right below, to a flat inactive tone) — two different colors either way, however close, meeting at a hard edge. Using that exact same flat tone for both, instead of fading one of them, is what actually removes the seam: a plain inset border here, matching .title-bar's border-color exactly, rather than a differently-colored multi-layer bevel translucently overlaid. 3px, not 1px: the active bevel's six diagonal layers reach 3px deep at their farthest (the -3px/3px pair) — a 1px flat border read as "no border at all" next to how thick the active one is, even though both are technically present. Same reach, just one flat color instead of six shaded ones (fitting for a muted, inactive look). */
+  /* A flat, single-color inset border — matching .title-bar's border-color exactly — rather than a translucent fade of the six-layer active bevel: fading toward the background would leave a visible seam exactly where this overlay (covering the window body) meets .title-bar's own border above (overridden separately, right below, to that same flat inactive tone) — two different colors either way, however close, meeting at a hard edge. 3px, not 1px, matches the active bevel's own deepest reach (the -3px/3px layer pair), so the muted look doesn't also read as a thinner border. Same reach, just one flat color instead of six shaded ones. */
   box-shadow: inset 0 0 0 3px rgb(123, 153, 225);
 }
 
@@ -402,8 +440,31 @@
   opacity: 0.5;
 }
 
-/* Pixel-measured against a real screenshot (Screenshot 2026-09-07 alle 16.11.51.png, an inactive "Musica campione" window): the icon renders at essentially full saturation/brightness there (a sampled yellow folder-icon pixel came back at rgb(250, 215, 115), not dimmed at all), while the title *text* is visibly muted. Only .title-bar-text gets touched, not the whole .title-bar-title wrapper, so the icon next to it stays untouched. No text-shadow on an inactive title, on purpose — XP-scoped.css's own `.title-bar` rule sets one (inherited down to .title-bar-text), meant for the crisper, higher-contrast active title bar; explicitly removed here rather than just left to fade along with the dimmed text color. */
+/* Pixel-measured against a real screenshot of an inactive window: the icon renders at essentially full saturation/brightness there (a sampled yellow folder-icon pixel came back at rgb(250, 215, 115), not dimmed at all), while the title *text* is visibly muted. Only .title-bar-text gets touched, not the whole .title-bar-title wrapper, so the icon next to it stays untouched. No text-shadow on an inactive title, on purpose — XP-scoped.css's own `.title-bar` rule sets one (inherited down to .title-bar-text), meant for the crisper, higher-contrast active title bar; explicitly removed here rather than just left to fade along with the dimmed text color. */
 .win-xp-shell .window.inactive .title-bar-text {
   opacity: 0.7;
   text-shadow: none;
+}
+
+/* This element carries `.window` itself (the chrome — background, bevel, border-radius), not just layout: react-rnd's own outer box only owns position/size. `position: relative` is what lets `.window::before`'s bevel (an absolutely-positioned pseudo-element) anchor to this element specifically. No transition of its own — the real window always snaps instantly; only the wireframe below animates. */
+.win-xp-shell .window-anim {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* The wireframe stand-in for minimize/restore/maximize/restore-down — src/lib/xpWireframeAnimation.ts sets its geometry, this transition (180ms linear) does the actual interpolation between the two values it's given. */
+.win-xp-shell .xp-wireframe {
+  position: fixed;
+  z-index: 1002;
+  border: 1px solid rgb(0, 0, 0);
+  background: transparent;
+  pointer-events: none;
+  transition: all 180ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win-xp-shell .xp-wireframe {
+    transition: none;
+  }
 }

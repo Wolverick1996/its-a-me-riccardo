@@ -12,6 +12,7 @@ The site presents the same content through more than one interactive shell — a
 - `src/components/` — shared React components, grouped by what they belong to: one folder per shell, plus separate folders for cross-cutting pieces that don't belong to any single shell (e.g. a redirect component).
 - `src/content/` — the shared data model: type definitions, a single registry of sections, and the content data itself. One place to add or change content, independent of how any shell displays it.
 - `src/styles/` — vendored or hand-maintained CSS that falls outside the normal utility-CSS flow, one subfolder per shell that needs it. When a shell's styling comes from a third-party stylesheet built for a single-theme page, scope it under that shell's own wrapper class so its rules can never leak into another shell (see [`docs/06-css-scoping-xp-css.md`](./06-css-scoping-xp-css.md)).
+- `src/store/` — Zustand stores for state a shell's components need to share directly rather than pass through props, one store per shell (see [`docs/10-window-manager-state.md`](./10-window-manager-state.md) for the Desktop XP one).
 
 ## Static assets (`public/`)
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { AppDefinition } from "@/content/types";
 
 function Clock() {
-  // Starts empty and fills in after mount, on purpose: the server has no notion of "now" for a statically prerendered page, so rendering a real time during the initial render would mismatch the browser's first paint — see docs/03-nextjs-concepts.md on hydration mismatches.
+  // Starts empty and fills in after mount, on purpose: the server has no notion of "now" for a statically prerendered page, so rendering a real time during the initial render would mismatch the browser's first paint.
   const [time, setTime] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function Taskbar({
           onToggleStart();
         }}
       />
-      {/* The button's whole face — icon, "start" text, shape, and neutral/hover/pressed color states — is a real cropped screenshot (see docs/08-taskbar-fidelity.md), not hand-drawn, so there's no visible text child here; aria-label carries the accessible name instead. */}
+      {/* The button's whole face — icon, "start" text, shape, and neutral/hover/pressed color states — is a real cropped screenshot, not hand-drawn, so there's no visible text child here; aria-label carries the accessible name instead. */}
       {openApps.map((app) => (
         <button
           key={app.id}
@@ -57,8 +57,10 @@ export default function Taskbar({
           className="taskbar-window-button"
           aria-pressed={app.id === focusedId}
           onClick={() => onSelectWindow(app.id)}
+          // Lets a Window locate its own taskbar button (getBoundingClientRect) to animate minimize/restore toward/from it.
+          data-window-id={app.id}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server, see docs/04-static-export-github-pages.md */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
           <img
             src={app.desktopIcon}
             alt=""

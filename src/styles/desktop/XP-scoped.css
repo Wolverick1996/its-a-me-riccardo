@@ -1,7 +1,7 @@
 /*!
  * Vendored from XP.css v0.2.6 (https://botoxparty.github.io/XP.css/), MIT-licensed.
- * All selectors scoped under .win-xp-shell via postcss-prefix-selector so its bare-element rules never leak into the rest of the site — see docs/ for details.
- * The "Pixelated MS Sans Serif" and "Perfect DOS VGA 437 Win" fonts bundled alongside this file are fan recreations (not the real Microsoft fonts): MS Sans Serif is CC BY-SA 3.0 by "lou" on FontStruct (attribution required, see README.md); Perfect DOS VGA 437 Win is freeware by Zeh Fernando.
+ * All selectors scoped under .win-xp-shell via postcss-prefix-selector so its bare-element rules never leak into the rest of the site.
+ * The "Pixelated MS Sans Serif" and "Perfect DOS VGA 437 Win" fonts bundled alongside this file are fan recreations (not the real Microsoft fonts): MS Sans Serif is CC BY-SA 3.0 by "lou" on FontStruct (attribution required); Perfect DOS VGA 437 Win is freeware by Zeh Fernando.
  */
 /*! XP.css v0.2.6 - https://botoxparty.github.io/XP.css/ */
 @font-face {
