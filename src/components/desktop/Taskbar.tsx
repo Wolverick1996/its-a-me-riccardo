@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { AppDefinition } from "@/content/types";
+import VolumeControl from "./VolumeControl";
 
 function Clock() {
   // Starts empty and fills in after mount, on purpose: the server has no notion of "now" for a statically prerendered page, so rendering a real time during the initial render would mismatch the browser's first paint.
@@ -69,7 +70,12 @@ export default function Taskbar({
           <span className="taskbar-window-button-label">{app.title}</span>
         </button>
       ))}
-      <Clock />
+      <div className="taskbar-tray">
+        <div className="taskbar-tray-icons">
+          <VolumeControl />
+        </div>
+        <Clock />
+      </div>
     </div>
   );
 }

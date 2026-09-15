@@ -50,7 +50,8 @@
 .win-xp-shell .desktop-icon,
 .win-xp-shell .start-button,
 .win-xp-shell .taskbar-window-button,
-.win-xp-shell .start-menu-item {
+.win-xp-shell .start-menu-item,
+.win-xp-shell .taskbar-tray-icon-button {
   border: none;
   border-radius: 0;
   min-width: 0;
@@ -62,13 +63,15 @@
 .win-xp-shell .desktop-icon,
 .win-xp-shell .start-button,
 .win-xp-shell .taskbar-window-button,
-.win-xp-shell .start-menu-item {
+.win-xp-shell .start-menu-item,
+.win-xp-shell .taskbar-tray-icon-button {
   box-shadow: none !important;
   outline: none !important;
 }
 
 .win-xp-shell .desktop-icon,
-.win-xp-shell .start-menu-item {
+.win-xp-shell .start-menu-item,
+.win-xp-shell .taskbar-tray-icon-button {
   background: none !important;
 }
 
@@ -226,23 +229,100 @@
   box-shadow: var(--tile-box-shadow-focus) !important;
 }
 
-.win-xp-shell .taskbar-clock {
+/* The tray as a whole: icon area + clock, sharing one continuous background/border/shadow rather than each cell painting its own — real XP's tray reads as a single pressed-in strip, not a row of separately-bordered boxes. */
+.win-xp-shell .taskbar-tray {
   /* margin-inline-start: auto is ours, not part of the given styles below — it's what actually pushes the tray to the taskbar's far right in a flex layout; the given `margin-left: 10px` would cancel that (a fixed margin instead of `auto`), leaving the tray stranded right after the last taskbar-window-button with empty taskbar space to its right, so it's kept instead of applied literally. */
   margin-inline-start: auto;
   /* Full taskbar height, edge to edge — same reasoning as the Start button and taskbar-window-button above. */
   align-self: stretch;
   display: flex;
   align-items: center;
-  justify-content: center;
-  /* Fixed instead of shrink-to-fit: "Pixelated MS Sans Serif" isn't monospace, so "11:11 PM" and "02:00 AM" measure ~9px apart at this font-size (canvas-measured across every hour/minute/AM-PM combination, widest ≈44px baseline) — left to size itself around the text, the tray (and everything anchored to its left edge) would visibly resize every time the clock ticks over to a wider or narrower string. box-sizing is border-box here (global reset), so the width below is the *outer* box — border-left (1) + the padding either side of the text (5 before, 8 after) + the text's own widest budget (44) — not just the text's own size. Less room before the time than after it, on purpose — real XP's tray reads that way too (tighter against the separator, looser before the screen edge). */
-  width: calc(58 * var(--xp-scale));
-  padding-inline: calc(5 * var(--xp-scale)) calc(8 * var(--xp-scale));
-  /* align-items: center centers the text's line box, not its visible ink — "Pixelated MS Sans Serif"'s baked-in metrics have more space below the glyphs than above, so a perfectly centered line box still reads as text sitting slightly high. Measured against a render (ink spanning 9.75–19px of a 31px-tall box, ~2px more room below than above) and nudged down by half that gap. */
-  padding-top: calc(2 * var(--xp-scale));
   background: linear-gradient(var(--system-tray));
   border-left: calc(1 * var(--xp-scale)) solid rgb(16, 66, 175);
   box-shadow: #18bbff calc(1 * var(--xp-scale)) 0 calc(1 * var(--xp-scale))
     inset;
+}
+
+/* align-self: stretch here too, not just on .taskbar-tray-volume below — a stretched child needs a full-height parent box to actually stretch into; without this, .taskbar-tray-icons itself stays sized to its own (small, icon-sized) content, leaving .taskbar-tray-volume nothing taller than that to stretch to despite asking for it. */
+.win-xp-shell .taskbar-tray-icons {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: calc(6 * var(--xp-scale));
+  padding-inline: calc(6 * var(--xp-scale));
+}
+
+.win-xp-shell .taskbar-tray-icon {
+  width: calc(16 * var(--xp-scale));
+  height: calc(16 * var(--xp-scale));
+}
+
+/* `position: relative` + `align-self: stretch` (not just `position: relative` alone) so the flyout's own `bottom: 100%` below measures against the *whole* taskbar height, not just this button's own small icon-sized box — same reasoning as .taskbar-clock/.taskbar-window-button opting out of .taskbar's centering to stretch full height. */
+.win-xp-shell .taskbar-tray-volume {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.win-xp-shell .taskbar-tray-icon-button {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Reproduces the real XP tray volume flyout — a titleless beveled box perched above the tray icon. Deliberately NOT the `.window` class: that carries app-window-specific chrome this flyout shouldn't inherit — XP-scoped.css's own `.window` rule adds a blue "focused" bevel and `border-top-left/right-radius` meant to pair with a title bar (see `.window::before` above), and a titleless box only ever shows the bottom/left/right slice of that, plus rounded corners with no title bar to justify them. The plain gray 3D raised bevel + background below is XP-scoped.css's `.window` base look, copied directly instead of inheriting the class and fighting its title-bar-oriented parts. */
+.win-xp-shell .volume-flyout {
+  position: absolute;
+  /* The anchor point is the icon's own CENTER, in both axes — not just horizontally (left: 50%, below) but vertically too: .taskbar-tray-volume is stretched to the taskbar's full height (30 reference px) and centers the icon inside it, so the icon's own vertical center sits exactly at half that, 15, up from the container's bottom edge. That's also why this needs its own z-index (1001, same tier as the Start Menu) above the taskbar's (1000) — this deliberately overlaps a good chunk of the taskbar, not just floats barely above it. */
+  bottom: calc(15 * var(--xp-scale));
+  /* Anchored by its bottom-LEFT corner, not centered as a whole box — but that corner sits at the icon's own horizontal CENTER (50% of .taskbar-tray-volume's width, which is exactly the icon button's width), not its left edge; left: 0 here put the whole box noticeably off to the icon's right instead of hanging naturally over it. */
+  left: 50%;
+  z-index: 1001;
+  /* Sized directly off the Mute row's own natural width (pixel-measured via getBoundingClientRect) rather than an external reference's absolute px or a further-guessed ratio: real XP's flyout reads about twice as wide as its own Mute checkbox+label row, a touch under. */
+  width: calc(68 * var(--xp-scale));
+  background: #ece9d8;
+  padding: 3px;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #dfdfdf,
+    inset -2px -2px grey,
+    inset 2px 2px #fff;
+}
+
+.win-xp-shell .volume-flyout-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(8 * var(--xp-scale));
+  font-family: "Pixelated MS Sans Serif", Arial;
+}
+
+/* Real XP left-aligns the Mute row against the box's own edge while the "Volume" label above stays centered — a real Windows checkbox+label control, not another centered heading, so it doesn't get the same treatment. Overrides just this one child's cross-axis position rather than switching the whole body to align-items: flex-start, which would also pull "Volume" and the slider off-center. The extra margin-top (on top of the body's own gap above) widens specifically the slider-to-Mute gap, pixel-measured against a reference screenshot as noticeably more generous than the Volume-to-slider gap above it, not the same spacing repeated three times. */
+.win-xp-shell .volume-flyout .field-row {
+  align-self: flex-start;
+  margin-top: calc(11 * var(--xp-scale));
+}
+
+/* XP-scoped.css hardcodes this slider's own length at 150px (.is-vertical's height, matched by its input's width below) — measured against real XP taskbar screenshots, that reads far too long relative to a real tray icon/taskbar, which is why the whole flyout came out too tall even after the box-level fixes above. Rescaled to this project's own --xp-scale system instead of leaving it at the vendor's fixed value (unlike most vendor widgets, which stay intentionally unscaled — this one visually needs to track the taskbar's own scaled height to look right against it). The paired input width below must stay equal to this, mirroring the vendor's own same-value pairing. translateX here (not on the input itself) is the same centering correction as before — a plain, non-rotated screen-space nudge — just re-measured via getBoundingClientRect for this new length, since the vendor's own residual offset doesn't scale proportionally with track length. */
+.win-xp-shell .volume-flyout .is-vertical {
+  height: calc(64 * var(--xp-scale));
+  transform: translateY(50%) translateX(-8px);
+}
+
+.win-xp-shell .volume-flyout .is-vertical > input[type="range"] {
+  width: calc(64 * var(--xp-scale));
+}
+
+.win-xp-shell .taskbar-clock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Fixed instead of shrink-to-fit: "Pixelated MS Sans Serif" isn't monospace, so "11:11 PM" and "02:00 AM" measure ~9px apart at this font-size (canvas-measured across every hour/minute/AM-PM combination, widest ≈44px baseline) — left to size itself around the text, the tray (and everything anchored to its left edge) would visibly resize every time the clock ticks over to a wider or narrower string. box-sizing is border-box here (global reset), so the width below is the text's own widest budget (44) plus the padding either side (5 before, 8 after) — not just the text's own size. */
+  width: calc(58 * var(--xp-scale));
+  padding-inline: calc(5 * var(--xp-scale)) calc(8 * var(--xp-scale));
+  /* align-items: center centers the text's line box, not its visible ink — "Pixelated MS Sans Serif"'s baked-in metrics have more space below the glyphs than above, so a perfectly centered line box still reads as text sitting slightly high. Measured against a render (ink spanning 9.75–19px of a 31px-tall box, ~2px more room below than above) and nudged down by half that gap. */
+  padding-top: calc(2 * var(--xp-scale));
   color: #fff;
   font-size: calc(11 * var(--xp-scale));
 }
@@ -302,7 +382,7 @@
   height: calc(20 * var(--xp-scale));
 }
 
-/* XP-scoped.css's control buttons are natively 21x21px (its SVG icon backgrounds are drawn at viewBox="0 -0.5 21 21"). Scaling the box here also needs `background-size: contain`, since XP-scoped.css never sets one. 30px (matching the taskbar) avoids the button reading cramped against its title-bar padding (3px each side, 27px total at reference size), while keeping the library's 21:30 ratio. */
+/* XP-scoped.css's control buttons are natively 21x21px (its SVG icon backgrounds are drawn at viewBox="0 -0.5 21 21") — kept at that same 21 here (just scaled), not grown to fill the 30px-tall title bar: pixel-measured live (getBoundingClientRect), the rendered button-height/title-bar-height ratio comes out at exactly 0.7, i.e. 21/30, and looks properly proportioned against a real screenshot, not cramped — sitting inside the title bar's own calc(4 * var(--xp-scale)) padding on every side rather than pushed edge to edge. Scaling the box here also needs `background-size: contain`, since XP-scoped.css never sets one. */
 .win-xp-shell .title-bar {
   /* XP-scoped.css itself sets a hardcoded `height: 21px` here (its own Luna-theme title-bar rule) — with box-sizing: border-box that clips the scaled padding/buttons below to a fixed 21px regardless of --xp-scale, so height needs its own override, not just padding. */
   height: calc(30 * var(--xp-scale));
@@ -457,7 +537,8 @@
 .win-xp-shell .xp-wireframe {
   position: fixed;
   z-index: 1002;
-  border: 1px solid rgb(0, 0, 0);
+  /* Scaled the same way .xp-marquee's border is — both are pure outline rectangles that are entirely this file's own chrome (no vendor content to visually match, unlike e.g. .window's deliberately-unscaled bevel). */
+  border: calc(1 * var(--xp-scale)) solid rgb(0, 0, 0);
   background: transparent;
   pointer-events: none;
   transition: all 180ms linear;

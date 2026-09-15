@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getEnabledApps } from "@/content/apps-registry";
 import DesktopIcon from "./DesktopIcon";
+import SoundTestIcon from "./SoundTestIcon";
 import Window from "./Window";
 import Taskbar from "./Taskbar";
 import StartMenu from "./StartMenu";
@@ -343,6 +344,7 @@ export default function Desktop() {
             />
           );
         })}
+        <SoundTestIcon />
       </div>
       {/* Real XP draws the rubber-band rectangle as part of the desktop itself, underneath any open window it's dragged across — a low, fixed z-index keeps it below every window's own (much higher) z-index from the store, rather than drawing over them. */}
       {marqueeRect && (

@@ -18,7 +18,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 - [x] Bootstrap: Next.js (App Router + TS) static export, GitHub Actions deploy to GitHub Pages.
 - [x] Redirect `/` → `/software` (client-side + meta-refresh fallback).
 - [x] Shared content model + apps registry (`src/content/`).
-- [ ] **Desktop XP track** — in progress (steps 1-3 done, step 5 substantially underway, see below).
+- [ ] **Desktop XP track** — in progress (steps 1-3 done, step 4/visual polish substantially underway, see below).
 - [ ] **Nokia 3310 track** — after Desktop XP is fully done.
 - [ ] **Integration**: `ResponsiveShell` (CSS-based switch between the two shells) + final end-to-end QA + `docs/README.md` index.
 
@@ -31,6 +31,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 - Git: never commit or push automatically; suggest a one-line gitmoji-prefixed commit message and let the user commit/push themselves.
 - Asset licensing discipline: verify an explicit open license (CC0 metadata, a repo's own `LICENSE` file, etc.) before using any third-party asset.
 - Shared content model risk: while heads-down on the Desktop XP track, avoid letting Desktop-specific assumptions leak into `src/content/` — the Nokia shell won't validate that model until much later now, so a hidden incompatibility would surface late.
+- A full Windows XP system sound set is vendored locally (`Windows XP Sounds/`, gitignored). Whenever a session adds or changes a desktop interaction (minimize, restore, menu clicks, notifications, errors, etc.), check whether a matching sound from this set should be wired to it, the same way real XP pairs a sound with each of those events.
 
 ## Roadmap detail
 
@@ -39,8 +40,8 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 1. ✅ Vendor/scope `XP.css` (`postcss-prefix-selector`, `.win-xp-shell` prefix) so its bare-element rules never leak → [`docs/06-css-scoping-xp-css.md`](./docs/06-css-scoping-xp-css.md).
 2. ✅ `Desktop`/`Taskbar`/`StartMenu`/`DesktopIcon`, wired to the apps from `src/content/apps-registry.ts`. Windows open (via desktop icon double-click or Start menu) and close. Icons support rubber-band marquee multi-select and drag-and-drop repositioning within the grid → [`docs/11-desktop-icon-interactions.md`](./docs/11-desktop-icon-interactions.md).
 3. ✅ Window manager: `react-rnd` + Zustand (`useWindowManagerStore`) — real drag/resize, focus/z-order, minimize, maximize/restore, and a taskbar-button toggle (focus/minimize/restore) matching real XP → [`docs/10-window-manager-state.md`](./docs/10-window-manager-state.md).
-4. Real window content components (`ProjectsApp`, `AboutApp`, `ContactApp`, `EducationApp`, `ResumeApp`, `ExperienceApp`).
-5. Desktop visual polish (palette, wallpaper, details) + Desktop-specific QA.
+4. Desktop visual polish (palette, wallpaper, details) + Desktop-specific QA — substantially underway already: window/taskbar chrome fidelity, DPI scaling, and icon/window interaction polish landed alongside steps 2-3 (see [`docs/07-verifying-ui-fidelity.md`](./docs/07-verifying-ui-fidelity.md), [`docs/08-dpi-scaling.md`](./docs/08-dpi-scaling.md), [`docs/09-desktop-shell-lessons.md`](./docs/09-desktop-shell-lessons.md)), plus a working taskbar system tray (`VolumeControl`, a real XP-style volume flyout backed by `useVolumeStore` — see the sound-set note above). Remaining: a dedicated palette/wallpaper accuracy pass, a full Desktop-specific QA sweep, and wiring real desktop-action sounds now that `useVolumeStore` exists to drive them (`SoundTestIcon.tsx` is a throwaway stand-in for that — delete it and its one usage in `Desktop.tsx` once real sounds are wired to real actions instead).
+5. Real window content components (`ProjectsApp`, `AboutApp`, `ContactApp`, `EducationApp`, `ResumeApp`, `ExperienceApp`), done last on purpose — includes both the components/content types and writing the real content (bio, real projects, resume, etc.) that replaces today's placeholder text in `src/content/`.
 
 ### Nokia 3310 track (after Desktop XP is considered finished)
 
@@ -69,6 +70,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 - Custom domain not chosen — no `public/CNAME` yet (see `README.md`).
 - Nokia display font not chosen yet — needs a license check before adoption (see step 9 above).
 - ~~Whether to commit the full Windows XP High Resolution Icon Pack (~172MB/557 files) to the repo, or keep cherry-picking individual files as needed~~ — decided: keep cherry-picking, the full pack (plus the separate `reference-icons/` pack the favicon came from) stays local-only, now `.gitignore`d rather than just untracked.
+- ~~Unresolved, unlike the icon pack: several assets (XP system sounds, the wallpaper, the Start button crop) have no verified open license — real Microsoft/rightsholder-owned material, not CC0/OFL-licensed recreations like the icons or fonts credited in `README.md`.~~ — decided: `README.md`'s Credits now splits "Openly licensed" from "Not openly licensed", crediting that second group plainly as their real owners' property with one shared fair-use disclaimer, since this is a non-commercial, non-monetized personal portfolio, not a commercial product.
 
 ## Where to look
 
