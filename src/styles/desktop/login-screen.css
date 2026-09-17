@@ -1,0 +1,373 @@
+/*! Chrome for LoginScreen and WelcomeScreen (src/components/desktop/), scoped under .win-xp-shell like desktop-shell.css. Kept in its own file since these two screens aren't part of the desktop surface itself — they exist entirely before it. */
+
+/* The real "Microsoft Windows xp" wordmark's own typeface, supplied locally (fonts/OPTIFranklinGothic-Medium.otf) rather than only referenced by name — most systems (macOS included) don't have it installed, so without a bundled file the .login-screen-logo-text font-family below would silently fall back to Arial/Helvetica for nearly every visitor. */
+@font-face {
+  font-family: "Franklin Gothic Medium";
+  src: url("fonts/OPTIFranklinGothic-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+.login-screen,
+.welcome-screen {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  user-select: none;
+  color: #fff;
+  /* Real XP login/welcome text isn't set in a pixel-hinted bitmap font the way this shell's window/taskbar chrome and this screen's own fine-print help text below are — it's classic Tahoma, the real XP UI's actual system font, smooth at this size. Referencing it by name costs nothing license-wise (no font file is embedded or redistributed, same as the body's existing Arial/Helvetica stack), and falls back cleanly on systems without it installed. */
+  font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
+  --login-scale: calc(100vh / 497);
+}
+
+.login-screen {
+  display: flex;
+  flex-direction: column;
+  background: rgb(90, 126, 220);
+}
+
+.login-screen-bar {
+  flex: 0 0 auto;
+  position: relative;
+  background: rgb(0, 48, 156);
+}
+
+.login-screen-bar-top {
+  height: calc(78 * var(--login-scale));
+}
+
+/* The thin highlight where the top bar meets the field: not a flat line — brightest around 24%-37% of the width, dimming smoothly toward both edges. Relies on .login-screen-body staying a plain static element: a positioned element always paints above a plain static sibling regardless of DOM order, so this positioned ::after keeps winning against it even though it comes first in the markup. */
+.login-screen-bar-top::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(-2 * var(--login-scale));
+  height: calc(2 * var(--login-scale));
+  background: linear-gradient(
+    90deg,
+    rgb(76, 111, 202) 0%,
+    rgb(107, 141, 226) 7%,
+    rgb(146, 178, 239) 14%,
+    rgb(197, 219, 253) 24%,
+    rgb(197, 219, 253) 37%,
+    rgb(174, 195, 242) 54%,
+    rgb(129, 163, 233) 71%,
+    rgb(94, 130, 221) 88%,
+    rgb(84, 120, 213) 95%
+  );
+}
+
+.login-screen-bar-bottom {
+  height: calc(95 * var(--login-scale));
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(24 * var(--login-scale));
+  padding: calc(20 * var(--login-scale)) calc(24 * var(--login-scale)) 0;
+  background: linear-gradient(90deg, rgb(57, 52, 173), rgb(0, 48, 156));
+}
+
+.login-screen-bar-bottom::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(-2 * var(--login-scale));
+  height: calc(2 * var(--login-scale));
+  background: linear-gradient(
+    90deg,
+    rgb(17, 61, 155) 0%,
+    rgb(83, 85, 122) 9%,
+    rgb(202, 134, 73) 18%,
+    rgb(247, 149, 56) 27%,
+    rgb(233, 144, 61) 36%,
+    rgb(189, 127, 81) 50%,
+    rgb(122, 102, 104) 64%,
+    rgb(83, 85, 122) 77%,
+    rgb(45, 70, 138) 86%,
+    rgb(17, 61, 155) 95%
+  );
+}
+
+.login-screen-body {
+  flex: 1 1 auto;
+  display: flex;
+  /* Deliberately NOT `position: relative` — this needs to stay a plain static element so .login-screen-bar-top's own positioned ::after (painted earlier in DOM) still wins the paint order against it. Making this positioned too would put it back in DOM-order stacking with bar-top and cover that highlight again. */
+  background:
+    radial-gradient(
+      ellipse 34% 58% at 7% 13%,
+      rgb(40, 49, 67) 0%,
+      rgb(140, 172, 237) 35%,
+      rgb(90, 126, 220) 100%
+    ),
+    rgb(90, 126, 220);
+}
+
+/* The "hug the divider" gap lives on each panel's own child (.login-screen-logo/.login-screen-hint below, .login-screen-user further down) as a margin, not as padding here. A child's own margin doesn't affect its parent flex item's basis calculation the same way, so it doesn't reintroduce the skew. */
+.login-screen-info {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 0;
+}
+
+.login-screen-users {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Not a flat rule: brightest at the vertical middle of the field, fading to almost nothing at the top and bottom. */
+.login-screen-divider {
+  flex: 0 0 calc(2 * var(--login-scale));
+  align-self: stretch;
+  background: linear-gradient(
+    180deg,
+    rgb(90, 126, 220) 0%,
+    rgb(107, 141, 226) 20%,
+    rgb(143, 175, 238) 50%,
+    rgb(107, 141, 226) 80%,
+    rgb(90, 126, 220) 100%
+  );
+}
+
+/* Flag on top, text below — matches the real lockup's own layout (the flag sits above the wordmark, not beside it), both sharing the same right edge against the divider. */
+.login-screen-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: calc(21 * var(--login-scale));
+}
+
+/* Wraps just the flag image (not the whole logo) so the "TM" mark below can be positioned relative to it without disturbing .login-screen-logo's own flex layout — width:fit-content keeps the wrapper sized to the image, not stretched to the column's full cross-axis width, so align-items:flex-end on the parent still hugs the image itself. */
+.login-screen-logo-flag-wrap {
+  position: relative;
+  width: fit-content;
+  margin-right: calc(12 * var(--login-scale));
+}
+
+/* Height-driven, not width-driven: the real flag is 102x78 (wider than tall), but this reused asset (src/app/icon.svg) has a square 256x256 viewBox — matching its height to the measured 78 and letting width follow keeps the stack's total height faithful, which matters more here than the flag's own aspect ratio. `filter: drop-shadow` (not `box-shadow`, which would box the transparent square rather than the flag's own silhouette) reproduces the soft, slightly-offset dark shadow real XP casts behind the flag panels. */
+.login-screen-logo-flag {
+  display: block;
+  width: auto;
+  height: calc(70 * var(--login-scale));
+  filter: drop-shadow(
+    calc(1 * var(--login-scale)) calc(2 * var(--login-scale))
+      calc(3 * var(--login-scale)) rgb(20 30 90 / 45%)
+  );
+}
+
+/* Trademark mark tucked a few px from the flag's own visible yellow panel — anchored to the flag specifically (this wrapper), not the text row, so it stays put next to the flag regardless of how wide the word next to it is. The SVG's own visible flag content sits well inside its square box, so "right"/"bottom" here are tuned against the flag's actual painted pixels, not its bounding box. */
+.login-screen-logo-tm {
+  position: absolute;
+  right: calc(4 * var(--login-scale));
+  bottom: calc(2 * var(--login-scale));
+  font-size: calc(8 * var(--login-scale));
+  color: rgb(255 255 255 / 80%);
+}
+
+.login-screen-logo-text {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(4 * var(--login-scale));
+  line-height: 1;
+  font-family: "Franklin Gothic Medium", Arial, Helvetica, sans-serif;
+  letter-spacing: -0.035em;
+  margin-top: calc(-1 * var(--login-scale));
+}
+
+.login-screen-logo-rick {
+  font-size: calc(32 * var(--login-scale));
+  font-weight: 500;
+  font-kerning: none;
+}
+
+.login-screen-logo-r-mark {
+  position: relative;
+  top: calc(11 * var(--login-scale));
+  margin: 0 calc(-4 * var(--login-scale));
+  font-size: calc(3 * var(--login-scale));
+  font-weight: 500;
+}
+
+.login-screen-logo-xp {
+  position: relative;
+  top: calc(3 * var(--login-scale));
+  font-size: calc(14 * var(--login-scale));
+  font-weight: 500;
+  color: rgb(255, 140, 0);
+}
+
+.login-screen-hint {
+  margin-top: calc(16 * var(--login-scale));
+  margin-right: calc(39 * var(--login-scale));
+  font-size: calc(13 * var(--login-scale));
+  font-weight: normal;
+  text-align: right;
+}
+
+/* Prefixed with .win-xp-shell (not just .login-screen-user): XP-scoped.css's own bare `button` rule (one class + one element) is more specific than a single custom class alone, so it would otherwise win and leave this button in its default beveled-dialog-button chrome instead of the plain, borderless look set below. */
+.win-xp-shell .login-screen-user {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: calc(16 * var(--login-scale));
+  background: none;
+  border: none;
+  padding: calc(10 * var(--login-scale)) calc(16 * var(--login-scale));
+  margin-left: calc(21 * var(--login-scale));
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fff;
+  text-align: left;
+}
+
+.login-screen.logging-in .login-screen-user::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(6 * var(--login-scale));
+  width: calc(340 * var(--login-scale));
+  border-radius: 8px;
+  border: 1px solid rgb(123 148 220);
+  background: rgb(32 64 159);
+  mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 85%);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 35%,
+    transparent 85%
+  );
+}
+
+.login-screen-avatar {
+  /* Positioned (even with no offset) so it paints above the selection glow's positioned ::before despite coming after it in DOM order — a positioned element always paints above a plain static sibling regardless of source order, and this ::before is positioned while a plain img/span isn't. */
+  position: relative;
+  width: calc(52 * var(--login-scale));
+  height: calc(52 * var(--login-scale));
+  border-radius: 6px;
+  border: 2px solid rgb(255 255 255 / 70%);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+  background: #fff;
+  padding: 4px;
+  object-fit: contain;
+  transition:
+    opacity 0.2s,
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+/* Real XP dims every account tile — icon and name both — the instant the mouse moves anywhere on the login screen, not on hover of that specific tile (LoginScreen.tsx tracks that with a page-wide mousemove listener, not :hover, and adds this class). */
+.win-xp-shell .login-screen-user.dimmed .login-screen-avatar,
+.win-xp-shell .login-screen-user.dimmed .login-screen-user-info {
+  opacity: 0.5;
+  transition:
+    opacity 0.2s,
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+/* Hovering (or keyboard-focusing) a dimmed tile un-dims it — same as clicking would immediately after: real XP always shows the tile you're about to act on at full brightness. */
+.win-xp-shell .login-screen-user.dimmed:hover .login-screen-avatar,
+.win-xp-shell .login-screen-user.dimmed:hover .login-screen-user-info,
+.win-xp-shell .login-screen-user.dimmed:focus-visible .login-screen-avatar,
+.win-xp-shell .login-screen-user.dimmed:focus-visible .login-screen-user-info {
+  opacity: 1;
+}
+
+/* Border turns gold on hover/focus, with a matching glow, same as real XP's account tile. */
+.win-xp-shell .login-screen-user:hover .login-screen-avatar,
+.win-xp-shell .login-screen-user:focus-visible .login-screen-avatar {
+  border-color: rgb(232 206 107);
+  box-shadow:
+    0 1px 4px rgb(0 0 0 / 40%),
+    0 0 4px rgb(232 206 107 / 70%);
+}
+
+/* Positioned so it (and both children below) paint above the selection glow's positioned ::before despite coming after it in DOM order — same reasoning as .login-screen-avatar's own comment. Only needs to be set here, once, on the wrapper: a positioned element's own normal-flow children stack within it regardless of their own position value. */
+.login-screen-user-info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.login-screen-username {
+  /* Explicit font-family, not inherited: XP-scoped.css's own bare `button` rule sets "fs Tahoma 8px" on every button, which this span would otherwise inherit from its `.login-screen-user` button parent — the same Tahoma-first stack `.login-screen-shutdown-label` uses (that element isn't a button, so it never had this problem). */
+  font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
+  font-size: calc(14 * var(--login-scale));
+  font-weight: normal;
+}
+
+.login-screen-user-role {
+  font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
+  font-size: calc(9 * var(--login-scale));
+  font-weight: bold;
+  color: rgb(10 30 130);
+}
+
+.login-screen.logging-in .login-screen-user-role {
+  color: #fff;
+}
+
+.login-screen-shutdown {
+  display: flex;
+  align-items: center;
+  gap: calc(15 * var(--login-scale));
+  flex: 0 0 auto;
+}
+
+/* `filter: drop-shadow` (not `box-shadow`, which would box the icon's own transparent padding rather than its rounded-square silhouette) — same technique as the flag logo's shadow above, reproducing the soft dark halo real XP casts behind this icon too. */
+.login-screen-shutdown-icon {
+  width: calc(17 * var(--login-scale));
+  height: auto;
+  filter: drop-shadow(
+    calc(0.5 * var(--login-scale)) calc(1 * var(--login-scale))
+      calc(1.5 * var(--login-scale)) rgb(0 0 0 / 50%)
+  );
+}
+
+.login-screen-shutdown-label {
+  font-size: calc(13 * var(--login-scale));
+}
+
+.login-screen-help {
+  font-family:
+    "fs Tahoma 8px", "fs Tahoma 8px fallback", Tahoma, Geneva, Verdana,
+    sans-serif;
+  font-size: calc(11 * var(--login-scale));
+  line-height: 0.85;
+  text-align: right;
+  color: rgb(255 255 255 / 90%);
+  flex: 0 0 auto;
+}
+
+/* Real XP doesn't animate this screen at all — a static frame. Layout-wise this is .login-screen itself: same column of bar/field/bar, just without .welcome-screen in its own selector list since the two screens' *content* genuinely differs (a login screen's two-panel body vs. a single centered word) even though their chrome doesn't. */
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  background: rgb(90, 126, 220);
+}
+
+/* .login-screen-body itself supplies the field's size/background (the same corner-glow gradient, not a separate copy of it) — this just centers the one word within it instead of laying out login's two panels + divider. */
+.welcome-screen-field {
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-screen-text {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: bold;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  text-shadow: 0.02em 0.03em 0.03em rgb(10 30 100 / 35%);
+  transform: translateX(8vw);
+}

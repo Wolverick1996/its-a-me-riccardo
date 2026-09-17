@@ -31,7 +31,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 - Git: never commit or push automatically; suggest a one-line gitmoji-prefixed commit message and let the user commit/push themselves.
 - Asset licensing discipline: verify an explicit open license (CC0 metadata, a repo's own `LICENSE` file, etc.) before using any third-party asset.
 - Shared content model risk: while heads-down on the Desktop XP track, avoid letting Desktop-specific assumptions leak into `src/content/` — the Nokia shell won't validate that model until much later now, so a hidden incompatibility would surface late.
-- A full Windows XP system sound set is vendored locally (`Windows XP Sounds/`, gitignored). Whenever a session adds or changes a desktop interaction (minimize, restore, menu clicks, notifications, errors, etc.), check whether a matching sound from this set should be wired to it, the same way real XP pairs a sound with each of those events.
+- The vendored sound-set check (see `AGENTS.md`) applies here too: revisit it whenever a new desktop interaction is added.
 
 ## Roadmap detail
 
@@ -40,21 +40,23 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 1. ✅ Vendor/scope `XP.css` (`postcss-prefix-selector`, `.win-xp-shell` prefix) so its bare-element rules never leak → [`docs/06-css-scoping-xp-css.md`](./docs/06-css-scoping-xp-css.md).
 2. ✅ `Desktop`/`Taskbar`/`StartMenu`/`DesktopIcon`, wired to the apps from `src/content/apps-registry.ts`. Windows open (via desktop icon double-click or Start menu) and close. Icons support rubber-band marquee multi-select and drag-and-drop repositioning within the grid → [`docs/11-desktop-icon-interactions.md`](./docs/11-desktop-icon-interactions.md).
 3. ✅ Window manager: `react-rnd` + Zustand (`useWindowManagerStore`) — real drag/resize, focus/z-order, minimize, maximize/restore, and a taskbar-button toggle (focus/minimize/restore) matching real XP → [`docs/10-window-manager-state.md`](./docs/10-window-manager-state.md).
-4. Desktop visual polish (palette, wallpaper, details) + Desktop-specific QA — substantially underway already: window/taskbar chrome fidelity, DPI scaling, and icon/window interaction polish landed alongside steps 2-3 (see [`docs/07-verifying-ui-fidelity.md`](./docs/07-verifying-ui-fidelity.md), [`docs/08-dpi-scaling.md`](./docs/08-dpi-scaling.md), [`docs/09-desktop-shell-lessons.md`](./docs/09-desktop-shell-lessons.md)), plus a working taskbar system tray (`VolumeControl`, a real XP-style volume flyout backed by `useVolumeStore` — see the sound-set note above). Remaining: a dedicated palette/wallpaper accuracy pass, a full Desktop-specific QA sweep, and wiring real desktop-action sounds now that `useVolumeStore` exists to drive them (`SoundTestIcon.tsx` is a throwaway stand-in for that — delete it and its one usage in `Desktop.tsx` once real sounds are wired to real actions instead).
-5. Real window content components (`ProjectsApp`, `AboutApp`, `ContactApp`, `EducationApp`, `ResumeApp`, `ExperienceApp`), done last on purpose — includes both the components/content types and writing the real content (bio, real projects, resume, etc.) that replaces today's placeholder text in `src/content/`.
+4. 🚧 Desktop visual polish (palette, wallpaper, details) + Desktop-specific QA — substantially underway already: window/taskbar chrome fidelity, DPI scaling, and icon/window interaction polish landed alongside steps 2-3 (see [`docs/07-verifying-ui-fidelity.md`](./docs/07-verifying-ui-fidelity.md), [`docs/08-dpi-scaling.md`](./docs/08-dpi-scaling.md), [`docs/09-desktop-shell-lessons.md`](./docs/09-desktop-shell-lessons.md)), plus a working taskbar system tray (`VolumeControl`, a real XP-style volume flyout backed by `useVolumeStore` — see the sound-set note above). Remaining: a dedicated palette/wallpaper accuracy pass and a full Desktop-specific QA sweep.
+5. 🚧 Login/Welcome session flow (`LoginScreen`, `WelcomeScreen`, `useSessionStore`) — the software page opens on a real-screenshot-measured XP login screen (see [`docs/07-verifying-ui-fidelity.md`](./docs/07-verifying-ui-fidelity.md) and [`docs/09-desktop-shell-lessons.md`](./docs/09-desktop-shell-lessons.md)); clicking the account tile plays a Welcome screen with the real `Windows XP Startup` sound and lands on the Desktop. Account avatar is a placeholder (a CC0 generic icon), to be swapped for a real photo in step 7 below. Log Off (Desktop → back to Login) isn't wired yet — no trigger exists for it (no Start Menu "Log Off" item or similar) — next up, as part of finishing this step, along with the confirmed-real `Windows XP Logoff Sound.wav`.
+6. Browser-zoom accessibility pass: right now, browser page zoom (Ctrl +/-) resizes only _some_ of the shell. `--xp-scale`/`--login-scale` (vh-based) elements deliberately stay a constant physical size under zoom, by design — the whole point of that scale system is to render "as if" always at the reference resolution, regardless of the actual window size. But plenty of other sizing is still flat, unscaled `px` (most of vendored `XP-scoped.css`'s widget internals — borders, shadows, tree-view guides, checkbox glyphs, ~380 declarations — plus any stray spot in our own files), and that flat sizing _does_ grow/shrink with zoom. The result: a user who zooms in to enlarge the UI (an accessibility need, not a preference) gets an inconsistent, partially-scaled result instead of a uniformly bigger one. Needs a real decision + fix, not just a note.
+7. Real window content components (`ProjectsApp`, `AboutApp`, `ContactApp`, `EducationApp`, `ResumeApp`, `ExperienceApp`), done last on purpose — includes both the components/content types and writing the real content (bio, real projects, resume, etc.) that replaces today's placeholder text in `src/content/`, plus swapping the login screen's placeholder avatar for a real photo.
 
 ### Nokia 3310 track (after Desktop XP is considered finished)
 
-6. Device asset (image/SVG of the phone) + overlay layout: real `<button>` elements positioned over the keypad regions (not an image-map — keeps it accessible/focusable) + the screen overlay area.
-7. `useNokiaStore` (Zustand): `currentScreen`, `selectedIndex`, `screenStack` for the "back" key.
-8. Menu screens reading from the same `src/content/` data, adapted/truncated for the tiny monochrome display.
-9. Display font: verify its license before adopting (options: a system monospace fallback, safest; or an open pixel font like "Press Start 2P" on Google Fonts, OFL — check first, same discipline as the icons).
-10. Nokia visual polish (palette, monochrome LCD look) + Nokia-specific QA.
+8. Device asset (image/SVG of the phone) + overlay layout: real `<button>` elements positioned over the keypad regions (not an image-map — keeps it accessible/focusable) + the screen overlay area.
+9. `useNokiaStore` (Zustand): `currentScreen`, `selectedIndex`, `screenStack` for the "back" key.
+10. Menu screens reading from the same `src/content/` data, adapted/truncated for the tiny monochrome display.
+11. Display font: verify its license before adopting (options: a system monospace fallback, safest; or an open pixel font like "Press Start 2P" on Google Fonts, OFL — check first, same discipline as the icons).
+12. Nokia visual polish (palette, monochrome LCD look) + Nokia-specific QA.
 
 ### Integration (last)
 
-11. `ResponsiveShell`: CSS-based switch (`hidden md:block` / `block md:hidden`) between Desktop XP and Nokia — never `window.matchMedia` (would cause a hydration mismatch on this fully static/prerendered site, see `docs/03-nextjs-concepts.md`).
-12. Final end-to-end QA (see the Verification checklist below) and a `docs/README.md` index of every note in `docs/`, in reading order.
+13. `ResponsiveShell`: CSS-based switch (`hidden md:block` / `block md:hidden`) between Desktop XP and Nokia — never `window.matchMedia` (would cause a hydration mismatch on this fully static/prerendered site, see `docs/03-nextjs-concepts.md`).
+14. Final end-to-end QA (see the Verification checklist below) and a `docs/README.md` index of every note in `docs/`, in reading order.
 
 ## Verification checklist (once both shells exist)
 
@@ -68,7 +70,7 @@ Desktop XP and Nokia 3310 are treated as two largely independent builds now (not
 ## Open questions / pending decisions
 
 - Custom domain not chosen — no `public/CNAME` yet (see `README.md`).
-- Nokia display font not chosen yet — needs a license check before adoption (see step 9 above).
+- Nokia display font not chosen yet — needs a license check before adoption (see step 10 above).
 - ~~Whether to commit the full Windows XP High Resolution Icon Pack (~172MB/557 files) to the repo, or keep cherry-picking individual files as needed~~ — decided: keep cherry-picking, the full pack (plus the separate `reference-icons/` pack the favicon came from) stays local-only, now `.gitignore`d rather than just untracked.
 - ~~Unresolved, unlike the icon pack: several assets (XP system sounds, the wallpaper, the Start button crop) have no verified open license — real Microsoft/rightsholder-owned material, not CC0/OFL-licensed recreations like the icons or fonts credited in `README.md`.~~ — decided: `README.md`'s Credits now splits "Openly licensed" from "Not openly licensed", crediting that second group plainly as their real owners' property with one shared fair-use disclaimer, since this is a non-commercial, non-monetized personal portfolio, not a commercial product.
 

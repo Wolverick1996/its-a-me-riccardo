@@ -40,7 +40,11 @@ This project doubles as a learning exercise, so `docs/` contains short notes exp
 
 - The site favicon (`src/app/icon.svg`) is the Windows XP flag emblem from the "Plasma5-WinXPSVG" icon theme by blackysgate.de, licensed CC0 1.0 Universal (verified via the file's own embedded RDF metadata).
 
-- The Desktop XP window styling is built on [XP.css](https://botoxparty.github.io/XP.css/) (MIT). The "Pixelated MS Sans Serif" font it bundles is a fan recreation by ["lou" on FontStruct](https://fontstruct.com/fontstructions/show/1384746), licensed CC BY-SA 3.0 — not the real Microsoft font. The "Perfect DOS VGA 437 Win" font is by Zeh Fernando, free for personal and commercial use.
+- The login screen's placeholder account picture (`public/user-7.svg`, until a real photo replaces it) is from the same "Plasma5-WinXPSVG" icon theme, also CC0 1.0 Universal.
+
+- The Desktop XP window styling is built on [XP.css](https://botoxparty.github.io/XP.css/) (MIT). The "Perfect DOS VGA 437 Win" font it bundles (used for `pre`) is by Zeh Fernando, free for personal and commercial use.
+
+- The Desktop shell's window/taskbar/Start Menu/desktop-icon chrome and the login screen's fine-print help text (`fonts/fs-tahoma-8px.woff2`, shared by `src/styles/desktop/desktop-shell.css` and `login-screen.css`) use ["fs Tahoma 8px"](https://fontstruct.com/fontstructions/show/735108) by ETHproductions on FontStruct, licensed CC BY-SA 3.0 — a pixel-art recreation of Tahoma at its classic small-size bitmap hinting, not the real Microsoft font. It replaces XP.css's own bundled "Pixelated MS Sans Serif" recreation, no longer used or shipped here.
 
 ### Not openly licensed
 
