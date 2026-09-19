@@ -13,7 +13,8 @@ const LOGIN_TRANSITION_MS = 1000;
 
 export default function LoginScreen() {
   const logIn = useSessionStore((state) => state.logIn);
-  /** Real XP dims every account tile the instant the mouse moves anywhere on the screen (not just over a tile) — starts false so the tile reads at full brightness on first paint, before the user has done anything, then flips true (and stays true) on the first mousemove. Only :hover un-dims it back. */
+  const shutDown = useSessionStore((state) => state.shutDown);
+  /** Real XP dims every account tile and the "Turn off computer" control the instant the mouse moves anywhere on the screen (not just over one of them) — starts false so everything reads at full brightness on first paint, before the user has done anything, then flips true (and stays true) on the first mousemove. Only :hover/:focus-visible un-dims a given control back. */
   const [hasMoved, setHasMoved] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -75,8 +76,11 @@ export default function LoginScreen() {
         </div>
       </div>
       <div className="login-screen-bar login-screen-bar-bottom">
-        {/* Decorative only: real XP always shows this button, but there's no shutdown feature here to wire it to. */}
-        <div className="login-screen-shutdown">
+        <button
+          type="button"
+          className={`login-screen-shutdown${hasMoved ? " dimmed" : ""}`}
+          onClick={shutDown}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
           <img
             src="/icons/desktop/Power.png"
@@ -84,7 +88,7 @@ export default function LoginScreen() {
             className="login-screen-shutdown-icon"
           />
           <span className="login-screen-shutdown-label">Turn off computer</span>
-        </div>
+        </button>
         <p className="login-screen-help">
           After you log on, you can add or change accounts.
           <br />

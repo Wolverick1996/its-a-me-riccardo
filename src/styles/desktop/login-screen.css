@@ -1,4 +1,4 @@
-/*! Chrome for LoginScreen and WelcomeScreen (src/components/desktop/), scoped under .win-xp-shell like desktop-shell.css. Kept in its own file since these two screens aren't part of the desktop surface itself — they exist entirely before it. */
+/*! Chrome for LoginScreen, WelcomeScreen, and ShutdownScreen (src/components/desktop/), scoped under .win-xp-shell like desktop-shell.css. Kept in its own file since these screens aren't part of the desktop surface itself — they exist entirely before/after it. */
 
 /* The real "Microsoft Windows xp" wordmark's own typeface, supplied locally (fonts/OPTIFranklinGothic-Medium.otf) rather than only referenced by name — most systems (macOS included) don't have it installed, so without a bundled file the .login-screen-logo-text font-family below would silently fall back to Arial/Helvetica for nearly every visitor. */
 @font-face {
@@ -9,7 +9,8 @@
 }
 
 .login-screen,
-.welcome-screen {
+.welcome-screen,
+.shutting-down-screen {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -201,7 +202,7 @@
   top: calc(3 * var(--login-scale));
   font-size: calc(14 * var(--login-scale));
   font-weight: 500;
-  color: rgb(255, 140, 0);
+  color: rgb(235, 123, 52);
 }
 
 .login-screen-hint {
@@ -317,11 +318,30 @@
   color: #fff;
 }
 
-.login-screen-shutdown {
+/* Prefixed with .win-xp-shell (not just .login-screen-shutdown): same reasoning as .login-screen-user above — needed to outrank XP-scoped.css's own bare `button` rule now that this is a real button instead of a plain div. */
+.win-xp-shell .login-screen-shutdown {
   display: flex;
   align-items: center;
   gap: calc(15 * var(--login-scale));
   flex: 0 0 auto;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Beats XP-scoped.css's own generic button state rules (a gold/amber `:hover` glow, a light gray/white `:active` fill, and a blue-ish inset `:focus` ring, all meant for dialog buttons like OK/Cancel) on pure specificity — an extra `:not(:disabled)` of its own, not source order, is what wins the tie, so it stays correct regardless of import order. Plain `:focus` (not just `:focus-visible`) is included because a mouse click alone leaves a button focused in most browsers — without this, moving the cursor away after clicking would still leave that ring showing. `outline: none` strips the browser's own default focus ring on top of that. */
+.win-xp-shell .login-screen-shutdown:not(:disabled):hover,
+.win-xp-shell .login-screen-shutdown:not(:disabled):focus,
+.win-xp-shell .login-screen-shutdown:not(:disabled):focus-visible,
+.win-xp-shell .login-screen-shutdown:not(:disabled):active {
+  background: none;
+  box-shadow: none;
+  outline: none;
 }
 
 /* `filter: drop-shadow` (not `box-shadow`, which would box the icon's own transparent padding rather than its rounded-square silhouette) — same technique as the flag logo's shadow above, reproducing the soft dark halo real XP casts behind this icon too. */
@@ -332,6 +352,20 @@
     calc(0.5 * var(--login-scale)) calc(1 * var(--login-scale))
       calc(1.5 * var(--login-scale)) rgb(0 0 0 / 50%)
   );
+  transition: opacity 0.2s;
+}
+
+/* Same dim-on-any-mousemove treatment as .login-screen-user above, just scoped to the icon alone — the label stays put, real XP only dims the icon here, not the text next to it. A much subtler drop than the account tile's own 0.5: real XP barely dims this control at all. */
+.win-xp-shell .login-screen-shutdown.dimmed .login-screen-shutdown-icon {
+  opacity: 0.88;
+}
+
+/* Hovering (or keyboard-focusing) un-dims it back, same as the account tile. */
+.win-xp-shell .login-screen-shutdown.dimmed:hover .login-screen-shutdown-icon,
+.win-xp-shell
+  .login-screen-shutdown.dimmed:focus-visible
+  .login-screen-shutdown-icon {
+  opacity: 1;
 }
 
 .login-screen-shutdown-label {
@@ -370,4 +404,52 @@
   letter-spacing: -0.01em;
   text-shadow: 0.02em 0.03em 0.03em rgb(10 30 100 / 35%);
   transform: translateX(8vw);
+}
+
+.shutting-down-screen {
+  display: flex;
+  flex-direction: column;
+  background: rgb(90, 126, 220);
+}
+
+.shutting-down-field {
+  align-items: center;
+  justify-content: center;
+}
+
+.shutting-down-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: calc(14 * var(--login-scale));
+  transform: translateX(8vw);
+}
+
+.shutting-down-content .login-screen-logo {
+  margin-right: 0;
+}
+
+.shutting-down-content .login-screen-logo-flag-wrap {
+  margin-right: calc(-7 * var(--login-scale));
+}
+
+.shutting-down-logo-text {
+  position: relative;
+}
+
+.shutting-down-xp-overlay {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 4 * var(--login-scale));
+  display: flex;
+  align-items: flex-start;
+  gap: calc(4 * var(--login-scale));
+}
+
+.shutting-down-caption {
+  margin: 0;
+  width: calc(200 * var(--login-scale));
+  text-align: right;
+  white-space: nowrap;
+  font-size: calc(15 * var(--login-scale));
 }

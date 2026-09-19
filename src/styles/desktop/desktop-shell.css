@@ -414,6 +414,18 @@
   height: calc(20 * var(--xp-scale));
 }
 
+.win-xp-shell .start-menu-footer {
+  display: flex;
+  gap: calc(2 * var(--xp-scale));
+  background: #fff;
+  padding: calc(4 * var(--xp-scale));
+  border-top: calc(1 * var(--xp-scale)) solid #ccc;
+}
+
+.win-xp-shell .start-menu-footer .start-menu-item {
+  flex: 1 1 0;
+}
+
 /* XP-scoped.css's control buttons are natively 21x21px (its SVG icon backgrounds are drawn at viewBox="0 -0.5 21 21") — kept at that same 21 here (just scaled), not grown to fill the 30px-tall title bar: pixel-measured live (getBoundingClientRect), the rendered button-height/title-bar-height ratio comes out at exactly 0.7, i.e. 21/30, matching real XP's own proportions rather than looking cramped — sitting inside the title bar's own calc(4 * var(--xp-scale)) padding on every side rather than pushed edge to edge. Scaling the box here also needs `background-size: contain`, since XP-scoped.css never sets one. */
 .win-xp-shell .title-bar {
   /* XP-scoped.css itself sets a hardcoded `height: 21px` here (its own Luna-theme title-bar rule) — with box-sizing: border-box that clips the scaled padding/buttons below to a fixed 21px regardless of --xp-scale, so height needs its own override, not just padding. */

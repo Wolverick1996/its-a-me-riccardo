@@ -1,0 +1,142 @@
+/*! Chrome for StartupScreen (src/components/desktop/) — the black boot-progress screen shown once, before LoginScreen, on the way back from ShutdownScreen (whose own chrome lives in login-screen.css instead, alongside LoginScreen/WelcomeScreen). Reuses "Franklin Gothic Medium"'s @font-face from login-screen.css rather than redeclaring it — both files are always imported together in src/app/software/page.tsx. */
+
+.startup-screen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  user-select: none;
+  font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
+  /* Real XP's boot screen is a fixed 640x480 (or 800x600) frame regardless of the monitor's own resolution, letterboxed/stretched by the video BIOS rather than laid out responsively — this shell has no such fixed frame to stretch, so instead treats the whole screen as one 1920x1080 reference frame and scales every measurement below off its height, same vh-driven approach as --login-scale/--xp-scale elsewhere in this shell. */
+  --boot-scale: calc(100vh / 1080);
+  /* The logo lockup below is this shell's own composition (LoginScreen's flag+wordmark, not Microsoft's), so it has no reference frame of its own to measure — sized instead so its total height lands at roughly the same fraction of the screen the real boot logo occupies. */
+  --boot-logo-scale: calc(100vh / 330);
+}
+
+.startup-screen-logo {
+  position: absolute;
+  top: 40.4%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Same flag/TM/text-row composition as .login-screen-logo, just centered on its own full screen instead of pinned against the login field's divider. */
+.startup-screen-logo-flag-wrap {
+  position: relative;
+  width: fit-content;
+  margin-right: calc(12 * var(--boot-logo-scale));
+}
+
+.startup-screen-logo-flag {
+  display: block;
+  width: auto;
+  height: calc(70 * var(--boot-logo-scale));
+  filter: drop-shadow(
+    calc(1 * var(--boot-logo-scale)) calc(2 * var(--boot-logo-scale))
+      calc(3 * var(--boot-logo-scale)) rgb(20 30 90 / 45%)
+  );
+}
+
+.startup-screen-logo-tm {
+  position: absolute;
+  right: calc(4 * var(--boot-logo-scale));
+  bottom: calc(2 * var(--boot-logo-scale));
+  font-size: calc(8 * var(--boot-logo-scale));
+  color: rgb(255 255 255 / 80%);
+}
+
+.startup-screen-logo-text {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(4 * var(--boot-logo-scale));
+  line-height: 1;
+  font-family: "Franklin Gothic Medium", Arial, Helvetica, sans-serif;
+  letter-spacing: -0.035em;
+  margin-top: calc(-1 * var(--boot-logo-scale));
+}
+
+.startup-screen-logo-rick {
+  font-size: calc(32 * var(--boot-logo-scale));
+  font-weight: 500;
+  font-kerning: none;
+}
+
+.startup-screen-logo-r-mark {
+  position: relative;
+  top: calc(11 * var(--boot-logo-scale));
+  margin: 0 calc(-4 * var(--boot-logo-scale));
+  font-size: calc(3 * var(--boot-logo-scale));
+  font-weight: 500;
+}
+
+.startup-screen-logo-xp {
+  position: relative;
+  top: calc(3 * var(--boot-logo-scale));
+  font-size: calc(14 * var(--boot-logo-scale));
+  font-weight: 500;
+  color: rgb(225, 95, 35);
+}
+
+.startup-screen-progress-track {
+  position: absolute;
+  top: 71%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  width: calc(287 * var(--boot-scale));
+  height: calc(35 * var(--boot-scale));
+  border: calc(4 * var(--boot-scale)) solid rgb(130, 130, 130);
+  border-radius: calc(9 * var(--boot-scale));
+  background: #000;
+  overflow: hidden;
+}
+
+/* The group of three blocks slides across the track as a single unit, fully exiting the right edge before reappearing at the left — not a bar that fills up, since real XP's boot progress has no notion of a completion percentage to show. */
+.startup-screen-progress-group {
+  position: absolute;
+  top: 50%;
+  left: calc(-49 * var(--boot-scale));
+  transform: translateY(-50%);
+  display: flex;
+  gap: calc(5 * var(--boot-scale));
+  animation: startup-progress-slide 2090ms linear infinite;
+}
+
+@keyframes startup-progress-slide {
+  from {
+    left: calc(-49 * var(--boot-scale));
+  }
+  to {
+    /* The track's own interior width (287 minus its 4px border on each side) — where the group is fully clear of the right edge, mirroring where `from` starts it fully clear of the left edge. */
+    left: calc(279 * var(--boot-scale));
+  }
+}
+
+.startup-screen-progress-segment {
+  flex: 0 0 auto;
+  width: calc(13 * var(--boot-scale));
+  height: calc(23 * var(--boot-scale));
+  border-radius: calc(3 * var(--boot-scale));
+  background: linear-gradient(
+    180deg,
+    rgb(63, 81, 218) 0%,
+    rgb(138, 163, 254) 28%,
+    rgb(90, 110, 232) 55%,
+    rgb(46, 63, 210) 100%
+  );
+}
+
+.startup-screen-copyright {
+  position: absolute;
+  top: 94.8%;
+  left: calc(40 * var(--boot-scale));
+  transform: translateY(-50%);
+  margin: 0;
+  font-size: calc(26 * var(--boot-scale));
+  white-space: nowrap;
+  color: rgb(255 255 255 / 90%);
+}

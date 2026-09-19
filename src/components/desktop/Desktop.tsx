@@ -7,6 +7,7 @@ import Window from "./Window";
 import Taskbar from "./Taskbar";
 import StartMenu from "./StartMenu";
 import { useWindowManagerStore } from "@/store/useWindowManagerStore";
+import { useSessionStore } from "@/store/useSessionStore";
 
 const apps = getEnabledApps();
 
@@ -80,13 +81,30 @@ export default function Desktop() {
   const focusedId = useWindowManagerStore((state) => state.focusedId);
   const openWindow = useWindowManagerStore((state) => state.openWindow);
   const closeWindow = useWindowManagerStore((state) => state.closeWindow);
+  const closeAllWindows = useWindowManagerStore(
+    (state) => state.closeAllWindows,
+  );
   const selectFromTaskbar = useWindowManagerStore(
     (state) => state.selectFromTaskbar,
   );
+  const logOff = useSessionStore((state) => state.logOff);
+  const turnOff = useSessionStore((state) => state.turnOff);
 
   function openApp(id: string) {
     openWindow(id);
     setStartMenuOpen(false);
+  }
+
+  function handleLogOff() {
+    setStartMenuOpen(false);
+    closeAllWindows();
+    logOff();
+  }
+
+  function handleTurnOff() {
+    setStartMenuOpen(false);
+    closeAllWindows();
+    turnOff();
   }
 
   // Listens on `window`, not just this component's own div, so a fast drag that momentarily leaves the browser viewport (or passes over a window/the taskbar, which would otherwise swallow the bubbling mousemove) still updates the rectangle and still ends cleanly on mouseup. Icon dragging and the marquee are mutually exclusive — only one of iconDragRef/dragStartRef is ever set at a time, so each mousemove only ever does one of the two.
@@ -372,7 +390,14 @@ export default function Desktop() {
         onToggleStart={() => setStartMenuOpen((open) => !open)}
         onSelectWindow={selectFromTaskbar}
       />
-      {startMenuOpen && <StartMenu apps={apps} onSelect={openApp} />}
+      {startMenuOpen && (
+        <StartMenu
+          apps={apps}
+          onSelect={openApp}
+          onLogOff={handleLogOff}
+          onTurnOff={handleTurnOff}
+        />
+      )}
     </div>
   );
 }

@@ -21,7 +21,6 @@ interface WindowManagerState {
   openOrder: string[];
   focusedId: string | null;
   nextZIndex: number;
-
   openWindow: (id: string) => void;
   closeWindow: (id: string) => void;
   focusWindow: (id: string) => void;
@@ -30,6 +29,8 @@ interface WindowManagerState {
   minimizeWindow: (id: string) => void;
   toggleMaximize: (id: string) => void;
   updateGeometry: (id: string, geometry: Partial<Geometry>) => void;
+  /** Log Off: closes every open window, same as real XP ending a session. */
+  closeAllWindows: () => void;
 }
 
 // Real px, read once per call from the live --xp-scale custom property — window geometry is plain numbers from here on, not a calc() string, so it has to be converted out of "reference px" up front rather than staying scale-reactive the way pure-CSS chrome does.
@@ -218,5 +219,9 @@ export const useWindowManagerStore = create<WindowManagerState>((set, get) => ({
       if (!win) return state;
       return { windows: { ...state.windows, [id]: { ...win, ...geometry } } };
     });
+  },
+
+  closeAllWindows: () => {
+    set({ windows: {}, openOrder: [], focusedId: null });
   },
 }));
