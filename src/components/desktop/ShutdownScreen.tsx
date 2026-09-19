@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useSessionStore } from "@/store/useSessionStore";
 import { useVolumeStore } from "@/store/useVolumeStore";
+import XpLogo from "./XpLogo";
 
 // The real shutdown chime's own length (~3.27s, confirmed with `afinfo`) — this screen waits for the sound to finish before moving on.
 const LOGGING_OFF_DURATION_MS = 3300;
@@ -42,24 +43,11 @@ export default function ShutdownScreen() {
       <div className="login-screen-bar login-screen-bar-top" />
       <div className="login-screen-body shutting-down-field">
         <div className="shutting-down-content">
-          <div className="login-screen-logo">
-            <div className="login-screen-logo-flag-wrap">
-              {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
-              <img src="/icon.svg" alt="" className="login-screen-logo-flag" />
-              <span className="login-screen-logo-tm" aria-hidden="true">
-                &trade;
-              </span>
-            </div>
-            <div className="login-screen-logo-text shutting-down-logo-text">
-              <span className="login-screen-logo-rick">Rick</span>
-              <span className="shutting-down-xp-overlay">
-                <span className="login-screen-logo-r-mark" aria-hidden="true">
-                  &reg;
-                </span>
-                <span className="login-screen-logo-xp">xp</span>
-              </span>
-            </div>
-          </div>
+          <XpLogo
+            prefix="login-screen-logo"
+            textClassName="shutting-down-logo-text"
+            xpWrapperClassName="shutting-down-xp-overlay"
+          />
           <p className="shutting-down-caption">
             {isLoggingOff ? "Logging off..." : "Windows is shutting down..."}
           </p>

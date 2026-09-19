@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useSessionStore } from "@/store/useSessionStore";
+import XpLogo from "./XpLogo";
 
 // Two full passes of the sliding progress bar (each pass is exactly `xp-boot-progress`'s own 2090ms in startup-screen.css) so the screen never cuts away mid-slide.
 const BOOT_DURATION_MS = 4180;
@@ -17,22 +18,7 @@ export default function StartupScreen() {
 
   return (
     <div className="startup-screen">
-      <div className="startup-screen-logo">
-        <div className="startup-screen-logo-flag-wrap">
-          {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
-          <img src="/icon.svg" alt="" className="startup-screen-logo-flag" />
-          <span className="startup-screen-logo-tm" aria-hidden="true">
-            &trade;
-          </span>
-        </div>
-        <div className="startup-screen-logo-text">
-          <span className="startup-screen-logo-rick">Rick</span>
-          <span className="startup-screen-logo-r-mark" aria-hidden="true">
-            &reg;
-          </span>
-          <span className="startup-screen-logo-xp">xp</span>
-        </div>
-      </div>
+      <XpLogo prefix="startup-screen-logo" />
       <div className="startup-screen-progress-track">
         <div className="startup-screen-progress-group">
           <span className="startup-screen-progress-segment" />

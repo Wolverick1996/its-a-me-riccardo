@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSessionStore } from "@/store/useSessionStore";
+import XpLogo from "./XpLogo";
 
 /** Single hard-coded account, same treatment StartMenu.tsx already gives its own "RickXP" header text — this is Desktop shell chrome, not shared portfolio content, so it doesn't belong in src/content/. */
 const ACCOUNT_NAME = "Riccardo Corona";
@@ -41,22 +42,7 @@ export default function LoginScreen() {
       <div className="login-screen-bar login-screen-bar-top" />
       <div className="login-screen-body">
         <div className="login-screen-info">
-          <div className="login-screen-logo">
-            <div className="login-screen-logo-flag-wrap">
-              {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
-              <img src="/icon.svg" alt="" className="login-screen-logo-flag" />
-              <span className="login-screen-logo-tm" aria-hidden="true">
-                &trade;
-              </span>
-            </div>
-            <div className="login-screen-logo-text">
-              <span className="login-screen-logo-rick">Rick</span>
-              <span className="login-screen-logo-r-mark" aria-hidden="true">
-                &reg;
-              </span>
-              <span className="login-screen-logo-xp">xp</span>
-            </div>
-          </div>
+          <XpLogo prefix="login-screen-logo" />
           <p className="login-screen-hint">To begin, click your user name</p>
         </div>
         <div className="login-screen-divider" />
