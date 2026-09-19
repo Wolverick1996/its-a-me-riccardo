@@ -355,6 +355,15 @@
   transition: opacity 0.2s;
 }
 
+/* Real XP's own pressed feedback for this control: the icon darkens noticeably (the classic "pushed in" cue), same treatment TurnOffDialog's own icon buttons use — stacked alongside the drop-shadow above rather than replacing it, since `filter` only takes one value per property. */
+.win-xp-shell .login-screen-shutdown:active .login-screen-shutdown-icon {
+  filter: drop-shadow(
+      calc(0.5 * var(--login-scale)) calc(1 * var(--login-scale))
+        calc(1.5 * var(--login-scale)) rgb(0 0 0 / 50%)
+    )
+    brightness(0.7);
+}
+
 /* Same dim-on-any-mousemove treatment as .login-screen-user above, just scoped to the icon alone — the label stays put, real XP only dims the icon here, not the text next to it. A much subtler drop than the account tile's own 0.5: real XP barely dims this control at all. */
 .win-xp-shell .login-screen-shutdown.dimmed .login-screen-shutdown-icon {
   opacity: 0.88;

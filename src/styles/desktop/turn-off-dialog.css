@@ -1,0 +1,155 @@
+/*! The Start menu's "Turn Off" item's own confirmation dialog (TurnOffDialog.tsx), the desktop-wide dim it triggers (Desktop.tsx's own .desktop-content), and the invisible click-blocking layer behind the dialog — real XP's "Turn off computer" dialog, a banner-style title (no window controls) over Stand By/Turn Off, rather than an ordinary titled window. */
+
+/* Real XP fades the whole desktop toward gray here, not just behind a translucent sheet — reproduced as a `filter` on the desktop content itself (Desktop.tsx's own wrapper around the icon grid/windows/taskbar), not `backdrop-filter` on an overlay: a `backdrop-filter` has to re-sample everything behind it every single frame, expensive enough over a full-viewport photo background plus icons/windows that a real browser visibly lagged behind its own animation timeline regardless of how short that timeline actually was. Desktop.tsx overrides `transition-duration` to 0 only for Cancel's own instant un-dim; opening always uses this. */
+.win-xp-shell .desktop-content {
+  transition: filter 5000ms ease;
+}
+
+.win-xp-shell .desktop-content.desktop-content-dimmed {
+  filter: grayscale(100%) brightness(70%);
+}
+
+/* Sits above every window/the taskbar/the start menu (all capped at or below 1001 in desktop-shell.css) — purely functional, no fill/filter of its own (the graying above already handles that), just a full-viewport click-catcher so the desktop can't be interacted with while the dialog is open. */
+.win-xp-shell .turn-off-interaction-block {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+/* Real XP has no DPI scaling, so its taskbar is a fixed 30px regardless of resolution — the same 30 this shell's own .taskbar already uses at this 1024x768 reference; this dialog's own reference width, ~300, is proportioned against that same 30px taskbar reference. */
+.win-xp-shell .turn-off-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2001;
+  width: calc(300 * var(--xp-scale));
+  display: flex;
+  flex-direction: column;
+  /* Square corners, unlike .window/.start-menu — real XP's own shutdown-style dialogs never round these. */
+  border: calc(2 * var(--xp-scale)) solid #001a5c;
+  box-shadow: calc(3 * var(--xp-scale)) calc(3 * var(--xp-scale))
+    calc(13 * var(--xp-scale)) rgba(0, 0, 0, 0.5);
+  /* The real dialog's large "Turn off computer"/"Stand By"/"Turn Off" text is classic Tahoma, not the small pixel-hinted bitmap font desktop-shell.css's own chrome (start menu, taskbar) uses — same stack LoginScreen/WelcomeScreen/ShutdownScreen already read their own large captions in. */
+  font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
+}
+
+.win-xp-shell .turn-off-dialog-title,
+.win-xp-shell .turn-off-dialog-footer {
+  display: flex;
+  align-items: center;
+  height: calc(44 * var(--xp-scale));
+  padding: 0 calc(14 * var(--xp-scale));
+  background: #00329a;
+  color: #fff;
+}
+
+.win-xp-shell .turn-off-dialog-title {
+  justify-content: space-between;
+  gap: calc(10 * var(--xp-scale));
+}
+
+.win-xp-shell .turn-off-dialog-title-text {
+  font-size: calc(17 * var(--xp-scale));
+  font-weight: 400;
+}
+
+/* Wraps just the flag image (not the TM mark) so that mark can be positioned relative to it without disturbing this row's own flex layout — same split login-screen.css's own .login-screen-logo-flag-wrap uses. */
+.win-xp-shell .turn-off-dialog-title-flag-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* `filter: drop-shadow` (not `box-shadow`, which would box the icon's own transparent padding rather than its flag silhouette) — same technique as .login-screen-logo-flag's own shadow, but at that shadow's own absolute reference-px offsets/blur rather than scaled down proportionally: a shadow scaled down to match this much smaller flag reads as too faint at this size. */
+.win-xp-shell .turn-off-dialog-title-flag {
+  display: block;
+  width: calc(34 * var(--xp-scale));
+  height: calc(34 * var(--xp-scale));
+  filter: drop-shadow(
+    calc(1 * var(--xp-scale)) calc(2 * var(--xp-scale))
+      calc(3 * var(--xp-scale)) rgb(20 30 90 / 60%)
+  );
+}
+
+.win-xp-shell .turn-off-dialog-title-tm {
+  position: absolute;
+  right: calc(-1 * var(--xp-scale));
+  bottom: calc(-1.5 * var(--xp-scale));
+  font-size: calc(6 * var(--xp-scale));
+  color: rgb(255 255 255 / 80%);
+}
+
+/* The glossy seam real XP renders between the title band and the lighter field below it: a horizontal sweep along the seam itself (light blue at both edges, brightening to near-white at the horizontal center — the same "brightest in the middle" shape the field's own background below repeats), not a top-to-bottom fade. Only the top edge has this; the field meets the footer band below with a plain edge. A thin line, not a thick bar, against the dialog's own scale. */
+.win-xp-shell .turn-off-dialog-divider {
+  height: calc(1.5 * var(--xp-scale));
+  background: linear-gradient(90deg, #3d65c5 0%, #eaf6ff 50%, #3d65c5 100%);
+}
+
+/* Centered, not a left-to-right sweep — brightest around the horizontal middle, fading back down at both edges, with no vertical variation at all (the same profile repeats near the top and near the bottom of the field). Padding-top/bottom aren't symmetric, on purpose: real XP leaves noticeably more room above the icons than below the label. */
+.win-xp-shell .turn-off-dialog-options {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: calc(50 * var(--xp-scale));
+  padding: calc(38 * var(--xp-scale)) calc(13 * var(--xp-scale))
+    calc(24 * var(--xp-scale));
+  background: linear-gradient(90deg, #5a7fe0 0%, #93b2f4 50%, #5a7fe0 100%);
+}
+
+/* XP-scoped.css styles every bare <button> with its classic beveled dialog-button chrome — appropriate for .turn-off-dialog-cancel below, wrong for these icon-and-label controls, which happen to use <button> for built-in keyboard/click semantics. Reset from a blank slate the same way desktop-shell.css's own start-menu-item/desktop-icon controls do. */
+.win-xp-shell .turn-off-dialog-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(1.5 * var(--xp-scale));
+  border: none;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  font-size: calc(16 * var(--xp-scale));
+  font-weight: 700;
+  letter-spacing: calc(0.3 * var(--xp-scale));
+  cursor: pointer;
+}
+
+/* Same !important reasoning as desktop-shell.css's own custom-control resets: XP-scoped.css's `:hover`/`:active` button rules are more specific (an extra pseudo-class) than a single custom class alone, so they'd otherwise still win over the plain reset above. The button itself never grows a background/outline on hover — only its own icon brightens, right below. Plain `:focus` (not just `:focus-visible`) is included because a mouse click-and-drag on the icon leaves the button focused in most browsers — without this, XP-scoped.css's own vendor `button:focus` rule (a blue inset box-shadow ring) would still show afterward, same reasoning login-screen.css's own `.login-screen-shutdown:not(:disabled):focus` already documents. */
+.win-xp-shell .turn-off-dialog-option:not(:disabled):hover,
+.win-xp-shell .turn-off-dialog-option:not(:disabled):focus,
+.win-xp-shell .turn-off-dialog-option:not(:disabled):active,
+.win-xp-shell .turn-off-dialog-option:focus-visible {
+  background: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.win-xp-shell .turn-off-dialog-option-icon {
+  width: calc(32 * var(--xp-scale));
+  height: calc(32 * var(--xp-scale));
+}
+
+/* The real dialog's only hover feedback: the icon itself barely brightens (next to no visible change against this same field blue), nothing about the button's own box changes. Pressing it is the opposite and much more visible: the icon darkens noticeably, the classic "pushed in" cue. */
+.win-xp-shell .turn-off-dialog-option:hover .turn-off-dialog-option-icon,
+.win-xp-shell
+  .turn-off-dialog-option:focus-visible
+  .turn-off-dialog-option-icon {
+  filter: brightness(1.08);
+}
+
+.win-xp-shell .turn-off-dialog-option:active .turn-off-dialog-option-icon {
+  filter: brightness(0.7);
+}
+
+/* XP-scoped.css's own bare-button rule sizes this from a flat, unscaled 75px min-width/12px padding/17px font — plausible on its own, but next to this dialog's own xp-scale'd sizing it renders wider than the reference's own narrower Cancel button. Overridden here to a scaled width/padding/font that actually shrinks and grows with the rest of the dialog instead of staying pinned to that flat reference size. */
+.win-xp-shell .turn-off-dialog-cancel {
+  cursor: pointer;
+  margin-left: auto;
+  min-width: calc(60 * var(--xp-scale));
+  min-height: calc(22 * var(--xp-scale));
+  padding: 0 calc(10 * var(--xp-scale));
+  font-size: calc(14 * var(--xp-scale));
+  /* .turn-off-dialog-footer sets color: #fff for its own navy background — wrong for this button's own near-white XP-scoped.css chrome, which needs its default dark text back. */
+  color: #000;
+}

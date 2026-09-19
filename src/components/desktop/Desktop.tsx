@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import cx from "classnames";
 import { getEnabledApps } from "@/content/apps-registry";
 import DesktopIcon from "./DesktopIcon";
 import Window from "./Window";
 import Taskbar from "./Taskbar";
 import StartMenu from "./StartMenu";
+import TurnOffDialog from "./TurnOffDialog";
 import { useWindowManagerStore } from "@/store/useWindowManagerStore";
 import { useSessionStore } from "@/store/useSessionStore";
 
@@ -56,6 +58,9 @@ function initialIconPositions(): Record<string, IconPosition> {
 
 export default function Desktop() {
   const [startMenuOpen, setStartMenuOpen] = useState(false);
+  const [turnOffDialogOpen, setTurnOffDialogOpen] = useState(false);
+  // Cancel un-dims the desktop instantly, with no transition — everything else about .desktop-content-dimmed's own filter change animates via CSS. Flipped true right alongside closing the dialog (one render, one paint, both the class and this instant transition-duration land together), then flipped back in the effect below once that paint has happened, so the *next* open still animates normally.
+  const [suppressDimTransition, setSuppressDimTransition] = useState(false);
   const [selectedIconIds, setSelectedIconIds] = useState<Set<string>>(
     new Set(),
   );
@@ -89,6 +94,7 @@ export default function Desktop() {
   );
   const logOff = useSessionStore((state) => state.logOff);
   const turnOff = useSessionStore((state) => state.turnOff);
+  const standBy = useSessionStore((state) => state.standBy);
 
   function openApp(id: string) {
     openWindow(id);
@@ -101,11 +107,36 @@ export default function Desktop() {
     logOff();
   }
 
-  function handleTurnOff() {
+  // Opens the "Turn off computer" dialog instead of turning off directly; the dialog's own buttons below drive the actual Turn Off/Stand By flows.
+  function handleOpenTurnOffDialog() {
     setStartMenuOpen(false);
+    setTurnOffDialogOpen(true);
+  }
+
+  function handleConfirmTurnOff() {
+    setTurnOffDialogOpen(false);
     closeAllWindows();
     turnOff();
   }
+
+  // No closeAllWindows() here, unlike Log Off/Turn Off — standing by preserves every open window's geometry for when the user logs back in.
+  function handleStandBy() {
+    setTurnOffDialogOpen(false);
+    standBy();
+  }
+
+  function handleCancelTurnOff() {
+    setSuppressDimTransition(true);
+    setTurnOffDialogOpen(false);
+  }
+
+  // Runs after the browser has already painted the instant (transition-free) un-dim above — safe to restore the transition for whenever the dialog next opens, since there's nothing left to animate on this render.
+  useEffect(() => {
+    if (!turnOffDialogOpen && suppressDimTransition) {
+      const id = setTimeout(() => setSuppressDimTransition(false), 0);
+      return () => clearTimeout(id);
+    }
+  }, [turnOffDialogOpen, suppressDimTransition]);
 
   // Listens on `window`, not just this component's own div, so a fast drag that momentarily leaves the browser viewport (or passes over a window/the taskbar, which would otherwise swallow the bubbling mousemove) still updates the rectangle and still ends cleanly on mouseup. Icon dragging and the marquee are mutually exclusive — only one of iconDragRef/dragStartRef is ever set at a time, so each mousemove only ever does one of the two.
   useEffect(() => {
@@ -277,9 +308,10 @@ export default function Desktop() {
 
   return (
     <div
-      className="win-xp-shell desktop-surface relative h-screen w-screen overflow-hidden"
-      style={{ backgroundImage: "url(/wallpaper/Bliss.jpg)" }}
+      className="win-xp-shell relative h-screen w-screen overflow-hidden"
       onMouseDown={(event) => {
+        // The interaction-blocking overlay (a sibling, not an ancestor, of the icon grid/windows/taskbar) visually covers all of it while the "Turn off computer" dialog is open, but a click still bubbles up to this same root handler regardless of which sibling was actually hit — without this guard, marquee/icon-drag selection would still arm underneath the dialog.
+        if (turnOffDialogOpen) return;
         if (event.button !== 0) return;
         const target = event.target as HTMLElement;
         const iconEl = target.closest<HTMLElement>(".desktop-icon");
@@ -321,6 +353,7 @@ export default function Desktop() {
         dragStartRef.current = { x: event.clientX, y: event.clientY };
       }}
       onClick={() => {
+        if (turnOffDialogOpen) return;
         setStartMenuOpen(false);
         if (didDragRef.current) {
           // A rubber-band drag just ended on this same element, which also fires a click — consume it once rather than let it immediately clear the selection the drag just made.
@@ -330,73 +363,100 @@ export default function Desktop() {
         setSelectedIconIds(new Set());
       }}
     >
-      <div className="desktop-icons">
-        {apps.map((app) => {
-          const position = iconPositions[app.id];
-          const isDragging =
-            draggingIcon !== null && draggingIcon.ids.includes(app.id);
-          return (
-            <DesktopIcon
-              key={app.id}
-              app={app}
-              selected={selectedIconIds.has(app.id)}
-              onSelect={(id) => {
-                // A completed drag still fires a click on its target afterward — consumed here once so it doesn't collapse a multi-selection down to just the icon that was grabbed (same pattern as the marquee's own didDragRef, just scoped to icons instead of the desktop background).
-                if (didDragIconRef.current) {
-                  didDragIconRef.current = false;
-                  return;
-                }
-                setSelectedIconIds(new Set([id]));
-              }}
-              onOpen={openApp}
-              style={{
-                gridColumn: position.col + 1,
-                gridRow: position.row + 1,
-                // A live-follows-the-cursor transform while dragging, on top of the (unchanged, until drop) grid placement above — the same "visual position vs. committed state" split Window.tsx's own drag uses, just via a plain CSS transform here instead of a wireframe standing in. Every dragged icon (the whole group, not just the one grabbed) shares the identical offset, so they visibly move together as one unit.
-                transform: isDragging
-                  ? `translate(${draggingIcon.dx}px, ${draggingIcon.dy}px)`
-                  : undefined,
-                zIndex: isDragging ? 1 : undefined,
-              }}
-            />
-          );
-        })}
+      {/* Filtered as a whole while the "Turn off computer" dialog is open — a plain `filter` on real painted content, not `backdrop-filter`. transitionDuration is only ever overridden to "0ms" for the instant un-dim on Cancel — see suppressDimTransition above — every other change to desktop-content-dimmed (i.e. opening the dialog) animates via the CSS transition on .desktop-content itself. */}
+      <div
+        className={cx(
+          "win-xp-shell",
+          "desktop-surface",
+          "desktop-content",
+          "absolute",
+          "inset-0",
+          { "desktop-content-dimmed": turnOffDialogOpen },
+        )}
+        style={{
+          backgroundImage: "url(/wallpaper/Bliss.jpg)",
+          transitionDuration: suppressDimTransition ? "0ms" : undefined,
+        }}
+      >
+        <div className="desktop-icons">
+          {apps.map((app) => {
+            const position = iconPositions[app.id];
+            const isDragging =
+              draggingIcon !== null && draggingIcon.ids.includes(app.id);
+            return (
+              <DesktopIcon
+                key={app.id}
+                app={app}
+                selected={selectedIconIds.has(app.id)}
+                onSelect={(id) => {
+                  // A completed drag still fires a click on its target afterward — consumed here once so it doesn't collapse a multi-selection down to just the icon that was grabbed (same pattern as the marquee's own didDragRef, just scoped to icons instead of the desktop background).
+                  if (didDragIconRef.current) {
+                    didDragIconRef.current = false;
+                    return;
+                  }
+                  setSelectedIconIds(new Set([id]));
+                }}
+                onOpen={openApp}
+                style={{
+                  gridColumn: position.col + 1,
+                  gridRow: position.row + 1,
+                  // A live-follows-the-cursor transform while dragging, on top of the (unchanged, until drop) grid placement above — the same "visual position vs. committed state" split Window.tsx's own drag uses, just via a plain CSS transform here instead of a wireframe standing in. Every dragged icon (the whole group, not just the one grabbed) shares the identical offset, so they visibly move together as one unit.
+                  transform: isDragging
+                    ? `translate(${draggingIcon.dx}px, ${draggingIcon.dy}px)`
+                    : undefined,
+                  zIndex: isDragging ? 1 : undefined,
+                }}
+              />
+            );
+          })}
+        </div>
+        {/* Real XP draws the rubber-band rectangle as part of the desktop itself, underneath any open window it's dragged across — a low, fixed z-index keeps it below every window's own (much higher) z-index from the store, rather than drawing over them. */}
+        {marqueeRect && (
+          <div
+            className="xp-marquee"
+            style={{
+              left: marqueeRect.x,
+              top: marqueeRect.y,
+              width: marqueeRect.width,
+              height: marqueeRect.height,
+            }}
+          />
+        )}
+        {/* Every open window stays mounted here regardless of isMinimized — Window itself animates and hides its own visual state when minimized (opacity, pointer-events, a transform parking it over its taskbar button) rather than unmounting, so restoring it later can animate back in instead of just reappearing instantly. Paint order doesn't depend on DOM order either way — each Window carries its own real z-index from the store. */}
+        {openApps.map((app) => (
+          <Window
+            key={app.id}
+            app={app}
+            isFocused={app.id === focusedId}
+            onClose={closeWindow}
+          />
+        ))}
+        <Taskbar
+          openApps={openApps}
+          focusedId={focusedId}
+          startMenuOpen={startMenuOpen}
+          onToggleStart={() => setStartMenuOpen((open) => !open)}
+          onSelectWindow={selectFromTaskbar}
+        />
+        {startMenuOpen && (
+          <StartMenu
+            apps={apps}
+            onSelect={openApp}
+            onLogOff={handleLogOff}
+            onTurnOff={handleOpenTurnOffDialog}
+          />
+        )}
       </div>
-      {/* Real XP draws the rubber-band rectangle as part of the desktop itself, underneath any open window it's dragged across — a low, fixed z-index keeps it below every window's own (much higher) z-index from the store, rather than drawing over them. */}
-      {marqueeRect && (
-        <div
-          className="xp-marquee"
-          style={{
-            left: marqueeRect.x,
-            top: marqueeRect.y,
-            width: marqueeRect.width,
-            height: marqueeRect.height,
-          }}
-        />
-      )}
-      {/* Every open window stays mounted here regardless of isMinimized — Window itself animates and hides its own visual state when minimized (opacity, pointer-events, a transform parking it over its taskbar button) rather than unmounting, so restoring it later can animate back in instead of just reappearing instantly. Paint order doesn't depend on DOM order either way — each Window carries its own real z-index from the store. */}
-      {openApps.map((app) => (
-        <Window
-          key={app.id}
-          app={app}
-          isFocused={app.id === focusedId}
-          onClose={closeWindow}
-        />
-      ))}
-      <Taskbar
-        openApps={openApps}
-        focusedId={focusedId}
-        startMenuOpen={startMenuOpen}
-        onToggleStart={() => setStartMenuOpen((open) => !open)}
-        onSelectWindow={selectFromTaskbar}
-      />
-      {startMenuOpen && (
-        <StartMenu
-          apps={apps}
-          onSelect={openApp}
-          onLogOff={handleLogOff}
-          onTurnOff={handleTurnOff}
-        />
+      {turnOffDialogOpen && (
+        <>
+          {/* Purely functional, no visual role — the actual graying happens on .desktop-content above via `filter`. This just blocks clicks/drags from reaching whatever it covers, the same way a real modal would, regardless of which sibling underneath was actually hit. */}
+          <div className="turn-off-interaction-block" />
+          <TurnOffDialog
+            onStandBy={handleStandBy}
+            onTurnOff={handleConfirmTurnOff}
+            onCancel={handleCancelTurnOff}
+          />
+        </>
       )}
     </div>
   );

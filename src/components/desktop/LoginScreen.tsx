@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import cx from "classnames";
 import { useSessionStore } from "@/store/useSessionStore";
+import { useVolumeStore } from "@/store/useVolumeStore";
 import XpLogo from "./XpLogo";
 
 /** Single hard-coded account, same treatment StartMenu.tsx already gives its own "RickXP" header text — this is Desktop shell chrome, not shared portfolio content, so it doesn't belong in src/content/. */
@@ -15,6 +16,10 @@ const LOGIN_TRANSITION_MS = 1000;
 
 export default function LoginScreen() {
   const logIn = useSessionStore((state) => state.logIn);
+  const resumeDesktop = useSessionStore((state) => state.resumeDesktop);
+  const resumingFromStandBy = useSessionStore(
+    (state) => state.resumingFromStandBy,
+  );
   const shutDown = useSessionStore((state) => state.shutDown);
   /** Real XP dims every account tile and the "Turn off computer" control the instant the mouse moves anywhere on the screen (not just over one of them) — starts false so everything reads at full brightness on first paint, before the user has done anything, then flips true (and stays true) on the first mousemove. Only :hover/:focus-visible un-dims a given control back. */
   const [hasMoved, setHasMoved] = useState(false);
@@ -33,6 +38,21 @@ export default function LoginScreen() {
     // Guards against a second click re-triggering the timer mid-transition.
     if (isLoggingIn) return;
     setIsLoggingIn(true);
+    if (resumingFromStandBy) {
+      // Resuming a suspended session, not a full boot login — real XP skips its own welcome animation here too, going straight to the desktop with a shorter "Windows Logon" chime instead of the big startup one.
+      setTimeout(() => {
+        const { volume, muted } = useVolumeStore.getState();
+        if (!muted && volume > 0) {
+          const audio = new Audio("/sounds/Windows%20XP%20Logon%20Sound.mp3");
+          audio.volume = volume / 100;
+          void audio.play().catch(() => {
+            // Autoplay blocked or similar — nothing else depends on this succeeding.
+          });
+        }
+        resumeDesktop();
+      }, LOGIN_TRANSITION_MS);
+      return;
+    }
     setTimeout(logIn, LOGIN_TRANSITION_MS);
   }
 
