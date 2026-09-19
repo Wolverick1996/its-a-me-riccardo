@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import cx from "classnames";
 import { Rnd } from "react-rnd";
 import type { AppDefinition } from "@/content/types";
 import {
@@ -117,7 +118,7 @@ export default function Window({
     >
       <div
         // `.window` (the chrome: background, bevel, border-radius) lives on this inner wrapper, not the Rnd box above — the Rnd box only owns position/size. `display: none` while a wireframe stands in for this window (minimizing/restoring/maximizing/restoring-down) is an instant, untransitioned toggle on purpose.
-        className={`window-anim window${isFocused ? "" : " inactive"}`}
+        className={cx("window-anim", "window", { inactive: !isFocused })}
         style={{ display: visible ? undefined : "none" }}
       >
         <div className="title-bar">

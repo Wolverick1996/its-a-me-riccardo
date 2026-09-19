@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import cx from "classnames";
 import type { AppDefinition } from "@/content/types";
 
 export default function DesktopIcon({
@@ -39,9 +40,9 @@ export default function DesktopIcon({
         alt=""
         // Images are natively draggable by default — without this, grabbing one to reposition it (Desktop.tsx's own mouse-based drag) could instead be hijacked partway through by the browser's own image-drag gesture, which stops sending mousemove events (it fires drag/dragover instead) and left our drag state stuck with no further updates or a mouseup to end it.
         draggable={false}
-        className={`desktop-icon-image${selected ? " selected" : ""}`}
+        className={cx("desktop-icon-image", { selected })}
       />
-      <span className={`desktop-icon-label${selected ? " selected" : ""}`}>
+      <span className={cx("desktop-icon-label", { selected })}>
         {app.title}
       </span>
     </button>

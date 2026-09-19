@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import cx from "classnames";
 import { useSessionStore } from "@/store/useSessionStore";
 import XpLogo from "./XpLogo";
 
@@ -37,7 +38,9 @@ export default function LoginScreen() {
 
   return (
     <div
-      className={`win-xp-shell login-screen${isLoggingIn ? " logging-in" : ""}`}
+      className={cx("win-xp-shell", "login-screen", {
+        "logging-in": isLoggingIn,
+      })}
     >
       <div className="login-screen-bar login-screen-bar-top" />
       <div className="login-screen-body">
@@ -49,7 +52,9 @@ export default function LoginScreen() {
         <div className="login-screen-users">
           <button
             type="button"
-            className={`login-screen-user${hasMoved && !isLoggingIn ? " dimmed" : ""}`}
+            className={cx("login-screen-user", {
+              dimmed: hasMoved && !isLoggingIn,
+            })}
             onClick={handleLogIn}
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
@@ -64,7 +69,7 @@ export default function LoginScreen() {
       <div className="login-screen-bar login-screen-bar-bottom">
         <button
           type="button"
-          className={`login-screen-shutdown${hasMoved ? " dimmed" : ""}`}
+          className={cx("login-screen-shutdown", { dimmed: hasMoved })}
           onClick={shutDown}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
