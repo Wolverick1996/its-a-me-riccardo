@@ -10,11 +10,15 @@ import StartMenu from "./StartMenu";
 import TurnOffDialog from "./TurnOffDialog";
 import { useWindowManagerStore } from "@/store/useWindowManagerStore";
 import { useSessionStore } from "@/store/useSessionStore";
+import { useCursorStore } from "@/store/useCursorStore";
 
 const apps = getEnabledApps();
 
 // Below any real click/drag movement — distinguishes "clicked without moving" (should still clear selection on mouseup/click) from an actual rubber-band drag.
 const DRAG_THRESHOLD_PX = 4;
+
+// Real XP briefly shows a plain hourglass cursor between clicking Log Off/Stand By/Turn Off and the matching "…" screen (ShutdownScreen) actually appearing.
+const SHUTDOWN_TRANSITION_MS = 1000;
 
 // Must match .desktop-icons' own `grid-template-rows: repeat(9, ...)` in desktop-shell.css — that's what actually renders the 9 rows.
 const GRID_ROWS = 9;
@@ -95,6 +99,8 @@ export default function Desktop() {
   const logOff = useSessionStore((state) => state.logOff);
   const turnOff = useSessionStore((state) => state.turnOff);
   const standBy = useSessionStore((state) => state.standBy);
+  const cursor = useCursorStore((state) => state.cursor);
+  const setCursor = useCursorStore((state) => state.setCursor);
 
   function openApp(id: string) {
     openWindow(id);
@@ -103,8 +109,11 @@ export default function Desktop() {
 
   function handleLogOff() {
     setStartMenuOpen(false);
-    closeAllWindows();
-    logOff();
+    setCursor("busy");
+    setTimeout(() => {
+      closeAllWindows();
+      logOff();
+    }, SHUTDOWN_TRANSITION_MS);
   }
 
   // Opens the "Turn off computer" dialog instead of turning off directly; the dialog's own buttons below drive the actual Turn Off/Stand By flows.
@@ -115,14 +124,18 @@ export default function Desktop() {
 
   function handleConfirmTurnOff() {
     setTurnOffDialogOpen(false);
-    closeAllWindows();
-    turnOff();
+    setCursor("busy");
+    setTimeout(() => {
+      closeAllWindows();
+      turnOff();
+    }, SHUTDOWN_TRANSITION_MS);
   }
 
   // No closeAllWindows() here, unlike Log Off/Turn Off — standing by preserves every open window's geometry for when the user logs back in.
   function handleStandBy() {
     setTurnOffDialogOpen(false);
-    standBy();
+    setCursor("busy");
+    setTimeout(standBy, SHUTDOWN_TRANSITION_MS);
   }
 
   function handleCancelTurnOff() {
@@ -308,7 +321,15 @@ export default function Desktop() {
 
   return (
     <div
-      className="win-xp-shell relative h-screen w-screen overflow-hidden"
+      className={cx(
+        "win-xp-shell",
+        "relative h-screen w-screen overflow-hidden",
+        {
+          "cursor-busy": cursor === "busy",
+          // Resuming from Stand By skips WelcomeScreen entirely (LoginScreen -> Desktop directly), so the AppStarting cursor set for that transition is still showing once the desktop itself has mounted, same as it can still be showing on a full boot login if the desktop loads before the startup chime finishes.
+          "cursor-app-starting": cursor === "appStarting",
+        },
+      )}
       onMouseDown={(event) => {
         // The interaction-blocking overlay (a sibling, not an ancestor, of the icon grid/windows/taskbar) visually covers all of it while the "Turn off computer" dialog is open, but a click still bubbles up to this same root handler regardless of which sibling was actually hit — without this guard, marquee/icon-drag selection would still arm underneath the dialog.
         if (turnOffDialogOpen) return;
@@ -371,7 +392,12 @@ export default function Desktop() {
           "desktop-content",
           "absolute",
           "inset-0",
-          { "desktop-content-dimmed": turnOffDialogOpen },
+          {
+            "desktop-content-dimmed": turnOffDialogOpen,
+            // This element carries its own "win-xp-shell" class (for the CSS variables .win-xp-shell declares), which means its own base cursor rule wins here over the outer wrapper's cursor-busy/cursor-app-starting above — needs repeating on whichever element actually owns the matching cursor rule, not just the outermost one.
+            "cursor-busy": cursor === "busy",
+            "cursor-app-starting": cursor === "appStarting",
+          },
         )}
         style={{
           backgroundImage: "url(/wallpaper/Bliss.jpg)",

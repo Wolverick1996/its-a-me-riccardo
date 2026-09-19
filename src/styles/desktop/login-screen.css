@@ -224,7 +224,7 @@
   padding: calc(10 * var(--login-scale)) calc(16 * var(--login-scale));
   margin-left: calc(21 * var(--login-scale));
   border-radius: 6px;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   color: #fff;
   text-align: left;
 }
@@ -331,7 +331,7 @@
   color: #fff;
   font: inherit;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 
 /* Beats XP-scoped.css's own generic button state rules (a gold/amber `:hover` glow, a light gray/white `:active` fill, and a blue-ish inset `:focus` ring, all meant for dialog buttons like OK/Cancel) on pure specificity — an extra `:not(:disabled)` of its own, not source order, is what wins the tie, so it stays correct regardless of import order. Plain `:focus` (not just `:focus-visible`) is included because a mouse click alone leaves a button focused in most browsers — without this, moving the cursor away after clicking would still leave that ring showing. `outline: none` strips the browser's own default focus ring on top of that. */

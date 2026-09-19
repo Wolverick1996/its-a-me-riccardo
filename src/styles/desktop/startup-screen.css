@@ -7,6 +7,8 @@
   background: #000;
   color: #fff;
   user-select: none;
+  /* Real XP shows no mouse cursor at all during boot — there's nothing yet for it to interact with. */
+  cursor: none;
   font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
   /* Real XP's boot screen is a fixed 640x480 (or 800x600) frame regardless of the monitor's own resolution, letterboxed/stretched by the video BIOS rather than laid out responsively — this shell has no such fixed frame to stretch, so instead treats the whole screen as one 1920x1080 reference frame and scales every measurement below off its height, same vh-driven approach as --login-scale/--xp-scale elsewhere in this shell. */
   --boot-scale: calc(100vh / 1080);

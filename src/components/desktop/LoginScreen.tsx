@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import cx from "classnames";
 import { useSessionStore } from "@/store/useSessionStore";
-import { useVolumeStore } from "@/store/useVolumeStore";
+import { useCursorStore } from "@/store/useCursorStore";
+import { playSessionSound } from "@/lib/playSessionSound";
 import XpLogo from "./XpLogo";
 
 /** Single hard-coded account, same treatment StartMenu.tsx already gives its own "RickXP" header text — this is Desktop shell chrome, not shared portfolio content, so it doesn't belong in src/content/. */
@@ -21,6 +22,8 @@ export default function LoginScreen() {
     (state) => state.resumingFromStandBy,
   );
   const shutDown = useSessionStore((state) => state.shutDown);
+  const cursor = useCursorStore((state) => state.cursor);
+  const setCursor = useCursorStore((state) => state.setCursor);
   /** Real XP dims every account tile and the "Turn off computer" control the instant the mouse moves anywhere on the screen (not just over one of them) — starts false so everything reads at full brightness on first paint, before the user has done anything, then flips true (and stays true) on the first mousemove. Only :hover/:focus-visible un-dims a given control back. */
   const [hasMoved, setHasMoved] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -38,17 +41,15 @@ export default function LoginScreen() {
     // Guards against a second click re-triggering the timer mid-transition.
     if (isLoggingIn) return;
     setIsLoggingIn(true);
+    // Real XP's arrow+hourglass "AppStarting" cursor, from the click itself until the desktop's loaded and its chime (Logon here, Startup for a full boot login below) has finished — cleared by whichever of those two actually plays it.
+    setCursor("appStarting");
     if (resumingFromStandBy) {
       // Resuming a suspended session, not a full boot login — real XP skips its own welcome animation here too, going straight to the desktop with a shorter "Windows Logon" chime instead of the big startup one.
       setTimeout(() => {
-        const { volume, muted } = useVolumeStore.getState();
-        if (!muted && volume > 0) {
-          const audio = new Audio("/sounds/Windows%20XP%20Logon%20Sound.mp3");
-          audio.volume = volume / 100;
-          void audio.play().catch(() => {
-            // Autoplay blocked or similar — nothing else depends on this succeeding.
-          });
-        }
+        playSessionSound("/sounds/Windows%20XP%20Logon%20Sound.mp3", {
+          onEnded: () => setCursor("default"),
+          onUnplayed: () => setCursor("default"),
+        });
         resumeDesktop();
       }, LOGIN_TRANSITION_MS);
       return;
@@ -60,6 +61,7 @@ export default function LoginScreen() {
     <div
       className={cx("win-xp-shell", "login-screen", {
         "logging-in": isLoggingIn,
+        "cursor-app-starting": cursor === "appStarting",
       })}
     >
       <div className="login-screen-bar login-screen-bar-top" />

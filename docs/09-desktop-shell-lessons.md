@@ -105,3 +105,27 @@ However narrow the flex row gets, a `.tile` with a text label won't shrink past 
 - `flex-basis: 0` — the item's starting size before grow/shrink apply, overriding the default `auto` ("use the content's natural size"). Starting at `0` means content no longer affects any item's starting size at all, so the container's entire width counts as leftover space to divide by `flex-grow` — equal `flex-grow` values then split it exactly in half, regardless of content.
 
 That `flex-basis: 0` is also why padding is the trap: padding on the item itself adds directly on top of that `0` in the final size calculation, breaking the parity between siblings whose padding doesn't match — while a margin on the item's own child never touches the flex item's own box model, so it can't interfere with that calculation the same way. That's the fix: move the spacing that needs to hug a shared edge to a margin on the item's child, not to padding on the item itself.
+
+## A specified value always beats an inherited one, however deep the ancestor sits
+
+```css
+.win-xp-shell {
+  cursor: url("arrow.png"), default; /* this project's own rule */
+}
+```
+
+```html
+<div class="win-xp-shell">
+  <button>Click me</button>
+  <!-- shows the OS arrow, not arrow.png -->
+</div>
+```
+
+Nobody wrote a `cursor` rule for that `<button>`, yet it ignores `.win-xp-shell`'s arrow — the browser's own stylesheet already gives every `<button>` an explicit `cursor: default`. `cursor` only inherits when nothing specifies a value; the instant something does, however unspecific, it wins over any ancestor, no specificity contest involved. Deleting a rule from this project's own CSS can't fix a value that was never ours to begin with.
+
+This shell hit that trap twice while wiring up its own custom cursor (see [docs/13-custom-cursor-system.md](./13-custom-cursor-system.md)):
+
+1. **Every native form control.** Chromium's UA stylesheet does the same to `<input>`, `<select>`, `<textarea>`, `<label>`, and a range input's `::-webkit-slider-thumb`/`::-webkit-slider-runnable-track`. `cursors.css` fixes them all with one blanket `cursor: inherit` rule instead of patching each control as it got noticed.
+2. **A library's inline style.** `react-rnd` sets an inline `style.cursor: "auto"` on the draggable window box whenever `dragHandleClassName` is used, so the box itself doesn't show a "move" cursor. That beats an external stylesheet even more directly than case 1, dragging the whole window's content down with it — fixed the same way, via `Window.tsx`'s own `style` prop.
+
+The fix is never "delete the rule I didn't write and hope inheritance resumes" — it's "specify the value you want, explicitly, on that element."

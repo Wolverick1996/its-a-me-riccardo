@@ -111,9 +111,21 @@ export default function Window({
       dragHandleClassName="title-bar"
       disableDragging={win.isMaximized}
       enableResizing={!win.isMaximized}
+      // Real Windows only has 2 diagonal resize cursors, not 4 — each covers a pair of opposite corners, matched here the same way (cursors.css draws the actual black double-arrow bitmaps from these classes).
+      resizeHandleClasses={{
+        top: "window-resize-ns",
+        bottom: "window-resize-ns",
+        left: "window-resize-ew",
+        right: "window-resize-ew",
+        topRight: "window-resize-nesw",
+        bottomLeft: "window-resize-nesw",
+        topLeft: "window-resize-nwse",
+        bottomRight: "window-resize-nwse",
+      }}
       minWidth={200}
       minHeight={150}
-      style={{ zIndex: win.zIndex }}
+      // react-rnd hardcodes an inline `cursor: auto` here whenever dragHandleClassName is set, blocking this shell's own cursor — restored via inherit; the resize handles' own !important rules in cursors.css still win for those.
+      style={{ zIndex: win.zIndex, cursor: "inherit" }}
       onMouseDown={() => focusWindow(app.id)}
     >
       <div

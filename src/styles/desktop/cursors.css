@@ -1,0 +1,71 @@
+/*! Real Windows XP cursor bitmaps (`public/cursors/`, credited in README.md's Credits section) instead of the host OS's own pointer — extracted from their original .cur files (1-bit AND+XOR masks, no anti-aliasing). None of these bitmaps carry a shadow of their own. `cursor: url(...) x y, <fallback>` pairs each bitmap with its pixel-measured hotspot and a matching CSS keyword fallback for browsers that can't load the image. */
+
+.win-xp-shell {
+  /* Shared by every clickable control that isn't part of the "no pointer" list (desktop-shell.css/turn-off-dialog.css/login-screen.css) — one real XP hand-pointer bitmap instead of each of those selectors repeating its own url()/hotspot pair. */
+  --cursor-pointer: url("/cursors/cursor-pointer.png") 6 2, pointer;
+
+  cursor:
+    url("/cursors/cursor-default.png") 1 1,
+    default;
+}
+
+.win-xp-shell button,
+.win-xp-shell input,
+.win-xp-shell select,
+.win-xp-shell textarea,
+.win-xp-shell label,
+.win-xp-shell input[type="range"]::-webkit-slider-thumb,
+.win-xp-shell input[type="range"]::-webkit-slider-runnable-track {
+  cursor: inherit;
+}
+
+/* Real XP's arrow+hourglass "AppStarting" cursor — set on the whole shell (not just one element) while a session-flow screen is loading in the background, same as real Windows leaves every window's cursor showing it until the app/desktop is ready. Toggled via useCursorStore, since the screen that starts it (LoginScreen) isn't the one that's loading (WelcomeScreen/Desktop). */
+.win-xp-shell.cursor-app-starting {
+  cursor:
+    url("/cursors/cursor-app-starting.png") 1 1,
+    progress;
+}
+
+/* Real XP's plain hourglass "Busy" cursor — the brief, fully-blocking pause between clicking Log Off/Stand By/Turn Off and the matching "…" screen actually mounting. */
+.win-xp-shell.cursor-busy {
+  cursor:
+    url("/cursors/cursor-busy.png") 7 10,
+    wait;
+}
+
+/* Every control that keeps its own hand-pointer cursor (desktop-shell.css's .desktop-icon, turn-off-dialog.css's .turn-off-dialog-option, login-screen.css's .login-screen-user/.login-screen-shutdown) specifies `cursor: var(--cursor-pointer)` directly rather than inheriting it — same "a specified value always wins", just in the other direction: while the cursor is mid-transition (AppStarting/Busy), that same specified value would otherwise keep showing the hand over whichever one of these happens to still be under the pointer, instead of the transition cursor every other element on the page is already showing. Handed back to `inherit` here, specifically for that window, so the transition cursor reaches these controls too. */
+.win-xp-shell.cursor-app-starting .desktop-icon,
+.win-xp-shell.cursor-app-starting .turn-off-dialog-option,
+.win-xp-shell.cursor-app-starting .login-screen-user,
+.win-xp-shell.cursor-app-starting .login-screen-shutdown,
+.win-xp-shell.cursor-busy .desktop-icon,
+.win-xp-shell.cursor-busy .turn-off-dialog-option,
+.win-xp-shell.cursor-busy .login-screen-user,
+.win-xp-shell.cursor-busy .login-screen-shutdown {
+  cursor: inherit;
+}
+
+/* react-rnd's own resize handles set their cursor as an inline style per direction (re-resizable's Resizer component) — a stylesheet rule needs !important to beat that, same reasoning as every other vendor-beating !important in this shell. resizeHandleClasses in Window.tsx assigns each of the 8 handles one of these 4 classes: the two diagonals each cover a pair of opposite corners, same as real Windows only ever having one cursor per diagonal rather than a separate one per corner. */
+.win-xp-shell .window-resize-ns {
+  cursor:
+    url("/cursors/cursor-resize-ns.png") 5 10,
+    ns-resize !important;
+}
+
+.win-xp-shell .window-resize-ew {
+  cursor:
+    url("/cursors/cursor-resize-ew.png") 10 5,
+    ew-resize !important;
+}
+
+.win-xp-shell .window-resize-nesw {
+  cursor:
+    url("/cursors/cursor-resize-nesw.png") 8 8,
+    nesw-resize !important;
+}
+
+.win-xp-shell .window-resize-nwse {
+  cursor:
+    url("/cursors/cursor-resize-nwse.png") 8 8,
+    nwse-resize !important;
+}

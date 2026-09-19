@@ -54,6 +54,8 @@ This project doubles as a learning exercise, so `docs/` contains short notes exp
 
 - The Windows XP system sounds under `public/sounds/` are Microsoft's own copyrighted assets, sourced from [an archive.org upload](https://archive.org/details/windowsxpstartup_201910) of the original system sound set.
 
+- The cursors under `public/cursors/` are extracted from a [Windows XP cursor set](https://www.rw-designer.com/cursor-set/windows-xp-1) uploaded by "nibbler" on rw-designer.com — per that upload's own readme, the bitmaps themselves are Microsoft's original Windows XP cursor artwork, not the uploader's own work.
+
 > ### Legal Notice & Disclaimer
 >
 > This website is a non-commercial, fan-made portfolio project created solely for educational, demonstration, and entertainment purposes. It is not affiliated with, authorized, sponsored, or endorsed by Microsoft Corporation.

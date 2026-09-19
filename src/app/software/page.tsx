@@ -2,6 +2,7 @@
 
 import "@/styles/desktop/XP-scoped.css";
 import "@/styles/desktop/desktop-shell.css";
+import "@/styles/desktop/cursors.css";
 import "@/styles/desktop/login-screen.css";
 import "@/styles/desktop/startup-screen.css";
 import "@/styles/desktop/turn-off-dialog.css";

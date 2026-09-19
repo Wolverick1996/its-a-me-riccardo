@@ -134,7 +134,7 @@
     calc(2 * var(--xp-scale)) rgba(0, 0, 0, 0.8);
   font-size: calc(16 * var(--xp-scale));
   text-align: center;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 
 .win-xp-shell .desktop-icon-image {
@@ -191,7 +191,6 @@
   background-image: url("/start-button/neutral.png");
   background-size: 100% 100%;
   border: none;
-  cursor: pointer;
 }
 
 .win-xp-shell .start-button:hover {
@@ -225,7 +224,6 @@
   box-shadow: var(--tile-box-shadow) !important;
   color: #fff;
   font-size: calc(17 * var(--xp-scale));
-  cursor: pointer;
 }
 
 .win-xp-shell .taskbar-window-button:hover {
@@ -288,7 +286,6 @@
 .win-xp-shell .taskbar-tray-icon-button {
   display: flex;
   align-items: center;
-  cursor: pointer;
 }
 
 /* Reproduces the real XP tray volume flyout — a titleless beveled box perched above the tray icon. Deliberately NOT the `.window` class: that carries app-window-specific chrome this flyout shouldn't inherit — XP-scoped.css's own `.window` rule adds a blue "focused" bevel and `border-top-left/right-radius` meant to pair with a title bar (see `.window::before` above), and a titleless box only ever shows the bottom/left/right slice of that, plus rounded corners with no title bar to justify them. The plain gray 3D raised bevel + background below is XP-scoped.css's `.window` base look, copied directly instead of inheriting the class and fighting its title-bar-oriented parts. */
@@ -399,7 +396,6 @@
   text-align: left;
   color: #222;
   font-size: calc(15 * var(--xp-scale));
-  cursor: pointer;
 }
 
 .win-xp-shell .start-menu-item:hover,
@@ -449,7 +445,6 @@
   min-width: calc(21 * var(--xp-scale));
   min-height: calc(21 * var(--xp-scale));
   background-size: contain;
-  cursor: pointer;
 }
 
 /* XP-scoped.css draws these three buttons from its own embedded SVG data URIs (including separate, more "lit up" artwork for :hover) — replaced here with the same Windows XP High Resolution Icon Pack PNGs already used for desktop/taskbar icons elsewhere (CC0), rather than mixing two different icon styles. :hover is pinned to the same image too, so it doesn't fall back to the vendor's own glow icon. */

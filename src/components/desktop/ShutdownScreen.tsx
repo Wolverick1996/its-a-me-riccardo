@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useSessionStore, type SessionStage } from "@/store/useSessionStore";
 import { useVolumeStore } from "@/store/useVolumeStore";
+import { useCursorStore } from "@/store/useCursorStore";
 import XpLogo from "./XpLogo";
 
 // The real shutdown chime's own length (~3.27s, confirmed with `afinfo`) — this screen waits for the sound to finish before moving on.
@@ -24,9 +25,12 @@ export default function ShutdownScreen() {
     (state) => state.finishShuttingDown,
   );
   const finishStandingBy = useSessionStore((state) => state.finishStandingBy);
+  const setCursor = useCursorStore((state) => state.setCursor);
   const isLoggingOff = stage === "loggingOff";
 
   useEffect(() => {
+    // Whichever busy-hourglass beat led here (Desktop's Log Off/Stand By/Turn Off click, see Desktop.tsx) ends the moment this screen actually mounts.
+    setCursor("default");
     if (isLoggingOff) {
       const { volume, muted } = useVolumeStore.getState();
       if (!muted && volume > 0) {
