@@ -41,7 +41,8 @@ interface SessionState {
 
 /** Drives which of StartupScreen/LoginScreen/WelcomeScreen/Desktop/ShutdownScreen the software page renders. Logging off and standing by both return to the login screen directly, same as real XP — neither replays the boot screen; shutting down does, since that's a full power cycle. */
 export const useSessionStore = create<SessionState>((set) => ({
-  stage: "boot",
+  // Skips the boot/login/welcome click-through in local dev (`next dev` only — the static production build always starts at "boot") since that flow is done and every other screen needs iterating on now. Remove once the rest of the desktop is ready and the full flow needs exercising again.
+  stage: process.env.NODE_ENV === "development" ? "desktop" : "boot",
   afterLoggingOff: "login",
   resumingFromStandBy: false,
   finishBoot: () => set({ stage: "login", resumingFromStandBy: false }),
