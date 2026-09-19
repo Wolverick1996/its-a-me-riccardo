@@ -57,7 +57,6 @@ export default function VolumeControl() {
         aria-expanded={open}
         onClick={handleToggle}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
         <img
           src={muted ? "/icons/desktop/Mute.png" : "/icons/desktop/Volume.png"}
           alt=""

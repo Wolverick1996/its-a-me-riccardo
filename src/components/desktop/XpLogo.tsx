@@ -25,7 +25,6 @@ export default function XpLogo({
   return (
     <div className={prefix}>
       <div className={`${prefix}-flag-wrap`}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
         <img src="/icon.svg" alt="" className={`${prefix}-flag`} />
         <span className={`${prefix}-tm`} aria-hidden="true">
           &trade;

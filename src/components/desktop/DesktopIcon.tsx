@@ -34,7 +34,6 @@ export default function DesktopIcon({
         if (event.key === "Enter") onOpen(app.id);
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
       <img
         src={app.desktopIcon}
         alt=""

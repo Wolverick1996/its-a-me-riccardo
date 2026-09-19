@@ -123,7 +123,6 @@ export default function Window({
       >
         <div className="title-bar">
           <div className="title-bar-title">
-            {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server */}
             <img src={app.desktopIcon} alt="" className="title-bar-icon" />
             <div className="title-bar-text">{app.title}</div>
           </div>

@@ -61,7 +61,6 @@ export default function Taskbar({
           // Lets a Window locate its own taskbar button (getBoundingClientRect) to animate minimize/restore toward/from it.
           data-window-id={app.id}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
           <img
             src={app.desktopIcon}
             alt=""

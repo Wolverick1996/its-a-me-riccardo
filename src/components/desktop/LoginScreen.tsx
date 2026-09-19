@@ -57,7 +57,6 @@ export default function LoginScreen() {
             })}
             onClick={handleLogIn}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
             <img src="/user-7.svg" alt="" className="login-screen-avatar" />
             <div className="login-screen-user-info">
               <span className="login-screen-username">{ACCOUNT_NAME}</span>
@@ -72,7 +71,6 @@ export default function LoginScreen() {
           className={cx("login-screen-shutdown", { dimmed: hasMoved })}
           onClick={shutDown}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- static export has no image optimization server. */}
           <img
             src="/icons/desktop/Power.png"
             alt=""
