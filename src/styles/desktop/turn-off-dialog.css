@@ -109,10 +109,11 @@
   background: none;
   box-shadow: none;
   color: #fff;
+  font-family:
+    "xp Tahoma Bold 8px", "xp Tahoma Bold 8px fallback", Arial, sans-serif;
   font-size: calc(16 * var(--xp-scale));
-  font-weight: 700;
-  letter-spacing: calc(0.3 * var(--xp-scale));
   cursor: var(--cursor-pointer);
+  -webkit-text-stroke: 0.01px transparent;
 }
 
 /* Same !important reasoning as desktop-shell.css's own custom-control resets: XP-scoped.css's `:hover`/`:active` button rules are more specific (an extra pseudo-class) than a single custom class alone, so they'd otherwise still win over the plain reset above. The button itself never grows a background/outline on hover — only its own icon brightens, right below. Plain `:focus` (not just `:focus-visible`) is included because a mouse click-and-drag on the icon leaves the button focused in most browsers — without this, XP-scoped.css's own vendor `button:focus` rule (a blue inset box-shadow ring) would still show afterward, same reasoning login-screen.css's own `.login-screen-shutdown:not(:disabled):focus` already documents. */
@@ -142,7 +143,7 @@
   filter: brightness(0.7);
 }
 
-/* XP-scoped.css's own bare-button rule sizes this from a flat, unscaled 75px min-width/12px padding/17px font — plausible on its own, but next to this dialog's own xp-scale'd sizing it renders wider than the reference's own narrower Cancel button. Overridden here to a scaled width/padding/font that actually shrinks and grows with the rest of the dialog instead of staying pinned to that flat reference size. */
+/* XP-scoped.css's own bare-button rule sizes this from a flat, unscaled 75px min-width/12px padding/17px font — plausible on its own, but next to this dialog's own xp-scale'd sizing it renders wider than real XP's own narrower Cancel button. Overridden here to a scaled width/padding/font that actually shrinks and grows with the rest of the dialog instead of staying pinned to that flat unscaled size. */
 .win-xp-shell .turn-off-dialog-cancel {
   margin-left: auto;
   min-width: calc(60 * var(--xp-scale));

@@ -151,6 +151,42 @@ export default function Desktop() {
     }
   }, [turnOffDialogOpen, suppressDimTransition]);
 
+  function toggleStartMenu() {
+    setStartMenuOpen((open) => !open);
+  }
+
+  // Two ways in: Ctrl+Escape (XP's own alternate for keyboards without a Windows key, and the one reliable on both Windows and Mac) and a bare tap of the Windows/Cmd key, which the DOM reports as "Meta" on either platform. Global, not inside StartMenu.tsx, so both fire even while the menu is closed and that component isn't mounted.
+  // The Meta tap needs its own keydown+keyup tracking, unlike Ctrl+Escape: Meta also modifies real combos (Cmd+C, Cmd+Tab), so this only fires on a "clean" tap — pressed and released with no other key in between. Expect it to work mainly on Mac: on real Windows, the OS itself swallows the Windows key before the browser ever sees it.
+  useEffect(() => {
+    let metaTapPending = false;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Meta") {
+        metaTapPending = true;
+        return;
+      }
+      // Any other key going down while Meta's held means this is a combo, not a bare tap — cancel it.
+      metaTapPending = false;
+      if (turnOffDialogOpen) return;
+      if (event.ctrlKey && event.key === "Escape") {
+        event.preventDefault();
+        toggleStartMenu();
+      }
+    }
+    function handleKeyUp(event: KeyboardEvent) {
+      if (event.key !== "Meta") return;
+      const wasCleanTap = metaTapPending;
+      metaTapPending = false;
+      if (wasCleanTap && !turnOffDialogOpen) toggleStartMenu();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [turnOffDialogOpen]);
+
   // Listens on `window`, not just this component's own div, so a fast drag that momentarily leaves the browser viewport (or passes over a window/the taskbar, which would otherwise swallow the bubbling mousemove) still updates the rectangle and still ends cleanly on mouseup. Icon dragging and the marquee are mutually exclusive — only one of iconDragRef/dragStartRef is ever set at a time, so each mousemove only ever does one of the two.
   useEffect(() => {
     // Reads the grid's real geometry at drop time (rather than trying to keep a live copy of it in state) to turn wherever the icon was let go of into a (col, row) cell for the anchor — the same approach Window.tsx's own wireframe drop takes for turning a pointer position into real layout, just against a grid instead of free pixels. Every other icon in the group moves by that same (col, row) delta, so the group keeps its shape rather than each member re-snapping to its own nearest cell independently.
@@ -373,8 +409,11 @@ export default function Desktop() {
         event.preventDefault();
         dragStartRef.current = { x: event.clientX, y: event.clientY };
       }}
-      onClick={() => {
+      onClick={(event) => {
         if (turnOffDialogOpen) return;
+        // A click anywhere inside the start menu itself still bubbles up to this root handler (the menu is a child of it, not a sibling) — real XP only closes the menu on a click outside it, not on clicking its own blank space.
+        const target = event.target as HTMLElement;
+        if (target.closest(".start-menu")) return;
         setStartMenuOpen(false);
         if (didDragRef.current) {
           // A rubber-band drag just ended on this same element, which also fires a click — consume it once rather than let it immediately clear the selection the drag just made.
@@ -461,7 +500,7 @@ export default function Desktop() {
           openApps={openApps}
           focusedId={focusedId}
           startMenuOpen={startMenuOpen}
-          onToggleStart={() => setStartMenuOpen((open) => !open)}
+          onToggleStart={toggleStartMenu}
           onSelectWindow={selectFromTaskbar}
         />
         {startMenuOpen && (

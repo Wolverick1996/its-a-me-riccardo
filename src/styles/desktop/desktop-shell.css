@@ -1,17 +1,35 @@
 /*! Hand-authored chrome for the Desktop XP shell that XP.css doesn't provide (it styles individual widgets like windows/buttons, not a whole desktop: no taskbar, start button, start menu, or icon grid). Scoped under .win-xp-shell for the same reason XP-scoped.css is. */
 
-/* A real pixel-art bitmap font (not a CSS attempt to fake one on top of a vector face), the same fix login-screen.css's own fine-print help text already uses this font for. Replaces XP-scoped.css's own "Pixelated MS Sans Serif" everywhere below (and in that vendored file's own widget defaults) — real XP's Luna theme actually renders most of its UI chrome in small Tahoma, not the older MS Sans Serif bitmap look XP.css defaults to; this is closer to that. "fs Tahoma 8px" is designed and hinted for exactly 8px; scaled away from that via var(--xp-scale) below like every other measurement in this file, so it won't stay pixel-snapped at every possible viewport height. */
+/* A real pixel-art bitmap font (not a CSS attempt to fake one on top of a vector face), the same fix login-screen.css's own fine-print help text already uses this font for. Replaces XP-scoped.css's own "Pixelated MS Sans Serif" everywhere below (and in that vendored file's own widget defaults) — real XP's Luna theme actually renders most of its UI chrome in small Tahoma, not the older MS Sans Serif bitmap look XP.css defaults to; this is closer to that. Named "xp Tahoma 8px" here rather than this FontStruction's own published name ("fs Tahoma 8px") — this file's own bold companion right below is published as "MS Tahoma Bold - 8px", a different author's own naming, and the two need one shared internal prefix (matching .win-xp-shell) instead of two unrelated-looking ones. Designed and hinted for exactly 8px; scaled away from that via var(--xp-scale) below like every other measurement in this file, so it won't stay pixel-snapped at every possible viewport height. */
 @font-face {
-  font-family: "fs Tahoma 8px";
-  src: url("fonts/fs-tahoma-8px.woff2") format("woff2");
+  font-family: "xp Tahoma 8px";
+  src: url("fonts/xp-tahoma-8px.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
 }
 
-/* A synthetic face, not a real font file: this pixel font renders much smaller than a normal typeface at the same font-size (canvas-measured cap-height: Arial/Tahoma/Verdana/Geneva all read 46-56% taller), so a plain fallback would jump jarringly bigger during the flash before fs-tahoma-8px.woff2 loads. `size-adjust: 68.6%` (the measured ratio, close enough across all four to share one value) scales whichever local font actually matches down to this font's own visual size. Every "fs Tahoma 8px" stack lists this face right after it, with the plain names kept after that as the ultimate fallback. */
+/* A synthetic face, not a real font file: this pixel font renders much smaller than a normal typeface at the same font-size (canvas-measured cap-height: Arial/Tahoma/Verdana/Geneva all read 46-56% taller), so a plain fallback would jump jarringly bigger during the flash before xp-tahoma-8px.woff2 loads. `size-adjust: 68.6%` (the measured ratio, close enough across all four to share one value) scales whichever local font actually matches down to this font's own visual size. Every "xp Tahoma 8px" stack lists this face right after it, with the plain names kept after that as the ultimate fallback. */
 @font-face {
-  font-family: "fs Tahoma 8px fallback";
+  font-family: "xp Tahoma 8px fallback";
   src: local("Arial"), local("Tahoma"), local("Verdana"), local("Geneva");
+  size-adjust: 68.6%;
+}
+
+/* A bold companion to "xp Tahoma 8px" above — same FontStruct pixel-art technique and reference size, but its own separate face rather than a synthetic `font-weight: bold` on the regular one (a browser-synthesized bold on a pixel font just smears the bitmap shapes instead of using the hand-drawn bold strokes this face actually has). Despite sharing the same 2000-unit em square as "xp Tahoma 8px" above, this face's own glyphs are drawn much taller within it (fontTools bounds: "P" is 1455 units tall here vs. 1000 there) — at the same font-size it renders visibly bigger than its regular counterpart, so `size-adjust: 68.7%` (1000/1455, the measured ratio) scales it back down to match. */
+@font-face {
+  font-family: "xp Tahoma Bold 8px";
+  src: url("fonts/xp-tahoma-bold-8px.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 68.7%;
+}
+
+/* Same reasoning as "xp Tahoma 8px fallback" above, applied on top of the real face's own 68.7% adjustment right above — approximated at the same ratio rather than re-measuring a plain system bold face separately. */
+@font-face {
+  font-family: "xp Tahoma Bold 8px fallback";
+  src:
+    local("Arial Bold"), local("Tahoma Bold"), local("Verdana Bold"),
+    local("Geneva Bold");
   size-adjust: 68.6%;
 }
 
@@ -36,6 +54,10 @@
     rgb(121, 150, 222) 25%, rgb(123, 153, 225) 56%, rgb(130, 169, 233) 81%,
     rgb(128, 165, 231) 89%, rgb(123, 150, 225) 94%, rgb(122, 147, 223) 97%,
     rgb(171, 186, 227) 100%;
+  /* A distinct gradient family from the window title bar above: the header dips to a dark shadow right under a bright top highlight before lightening steadily toward the bottom, while the footer just darkens steadily top to bottom. Neither matches --titlebar-gradient closely enough to reuse it. */
+  --start-menu-header-gradient:
+    180deg, #6bacf9 0%, #0c5fcb 8%, #186ad0 45%, #2b7adf 71%, #4490e9 100%;
+  --start-menu-footer-gradient: 180deg, #3f8ce6 0%, #2c77d8 40%, #0f5eca 100%;
   /* Every offset/blur/spread below is `calc(<reference px> * var(--xp-scale))`, same convention as everything else in this file — these came in as literal px values, which would've stayed pinned to their 1024x768-reference size rather than scaling with the rest of the shell. Gradient stops (above) don't need this: percentages (and the equivalent-to-0% "0px" first stop in --xp-gradient) are positions along the gradient line, already relative to the element's own size. */
   --tile-box-shadow:
     rgb(0 0 0 / 30%) calc(-1 * var(--xp-scale)) 0 inset,
@@ -93,14 +115,16 @@
   background: none !important;
 }
 
-/* XP-scoped.css's own widgets (buttons, selects, the status bar) use "fs Tahoma 8px" too; our hand-built chrome below is the same kind of system UI, so it should read the same, not fall back to the body's plain Arial. */
+/* XP-scoped.css's own widgets (buttons, selects, the status bar) use "xp Tahoma 8px" too; our hand-built chrome below is the same kind of system UI, so it should read the same, not fall back to the body's plain Arial. */
 .win-xp-shell .desktop-icon,
 .win-xp-shell .start-button,
 .win-xp-shell .taskbar-window-button,
 .win-xp-shell .taskbar-clock,
 .win-xp-shell .start-menu-header,
 .win-xp-shell .start-menu-item {
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
+  /* Works around a WebKit-only bug (confirmed absent in Chromium) where specific glyphs of this hand-built pixel font — "L", "u", confirmed by rendering the same glyphs at a much larger size, where the bug disappears — rasterize with a stray extra row of pixels at small sizes, reading as a spurious underline. A near-zero, fully transparent stroke doesn't change how the text looks, but it pushes WebKit onto a different (unaffected) text-rendering path. */
+  -webkit-text-stroke: 0.01px transparent;
 }
 
 /* 75px is real Windows' default icon-grid cell (IconSpacing/IconVerticalSpacing registry default, -1125 twips = 75px). Columns keep it exactly — grid-auto-flow adds columns as needed, so there's no fixed count to leave a literal 75px short. Rows are fixed at 9 (722 / 75 ≈ 9.6 fit in the 768 − 30 − 8 − 8 = 722px usable above the taskbar, at the reference resolution), but each row's height is stretched to 722/9 instead of the literal 75, so the 9 rows fill that height exactly rather than leaving an unfilled remainder. */
@@ -319,7 +343,7 @@
   flex-direction: column;
   align-items: center;
   gap: calc(8 * var(--xp-scale));
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
   font-size: calc(17 * var(--xp-scale));
 }
 
@@ -347,7 +371,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Fixed instead of shrink-to-fit: "fs Tahoma 8px" isn't monospace, so "11:11 PM" and "02:00 AM" measure noticeably apart at this font-size (canvas-measured across every hour/minute/AM-PM combination at the font-size below, widest ≈44px) — left to size itself around the text, the tray (and everything anchored to its left edge) would visibly resize every time the clock ticks over to a wider or narrower string. box-sizing is border-box here (global reset), so the width below is the text's own widest budget (44) plus the padding either side (5 before, 8 after) — not just the text's own size. */
+  /* Fixed instead of shrink-to-fit: "xp Tahoma 8px" isn't monospace, so "11:11 PM" and "02:00 AM" measure noticeably apart at this font-size (canvas-measured across every hour/minute/AM-PM combination at the font-size below, widest ≈44px) — left to size itself around the text, the tray (and everything anchored to its left edge) would visibly resize every time the clock ticks over to a wider or narrower string. box-sizing is border-box here (global reset), so the width below is the text's own widest budget (44) plus the padding either side (5 before, 8 after) — not just the text's own size. */
   width: calc(57 * var(--xp-scale));
   padding-inline: calc(5 * var(--xp-scale)) calc(8 * var(--xp-scale));
   /* align-items: center centers the text's line box, not its visible ink — this font's own baked-in metrics have more space below the glyphs than above, so a perfectly centered line box still reads as text sitting slightly high. Measured against a render and nudged down by half that gap. */
@@ -361,65 +385,244 @@
   /* Same reasoning as .taskbar's z-index above — sits above every window regardless of their own (much lower) z-index values. */
   z-index: 1001;
   bottom: calc(30 * var(--xp-scale));
-  left: calc(2 * var(--xp-scale));
-  width: calc(240 * var(--xp-scale));
+  left: 0;
+  width: calc(380 * var(--xp-scale));
   display: flex;
   flex-direction: column;
-  border: calc(1 * var(--xp-scale)) solid #0f2b7a;
+  border: calc(2 * var(--xp-scale)) solid #2952a4;
+  border-top-width: calc(1 * var(--xp-scale));
+  border-top-color: #1d5ab9;
+  border-right-color: #3a6bc5;
+  border-bottom-color: #0f5eca;
+  box-shadow: calc(2 * var(--xp-scale)) calc(2 * var(--xp-scale))
+    calc(6 * var(--xp-scale)) rgba(0, 0, 0, 0.3);
   border-radius: calc(6 * var(--xp-scale)) calc(6 * var(--xp-scale)) 0 0;
   overflow: hidden;
-  box-shadow: calc(2 * var(--xp-scale)) calc(2 * var(--xp-scale))
-    calc(6 * var(--xp-scale)) rgba(0, 0, 0, 0.4);
 }
 
 .win-xp-shell .start-menu-header {
-  padding: calc(8 * var(--xp-scale)) calc(10 * var(--xp-scale));
-  background: linear-gradient(90deg, #1941a5 0%, #3a72e0 100%);
-  color: #fff;
-  font-weight: 700;
-  font-size: calc(17 * var(--xp-scale));
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--xp-scale));
+  padding: calc(6 * var(--xp-scale)) calc(10 * var(--xp-scale));
+  background: linear-gradient(var(--start-menu-header-gradient));
 }
 
-.win-xp-shell .start-menu-list {
+/* Account photo, styled like login-screen.css's own .login-screen-avatar (white frame, inset padding, soft shadow) — same asset, same "photo tile" treatment, just sized for the header it sits in here instead of a login tile. Static, unlike the login screen's clickable one, so it skips that file's hover/focus/dimmed states entirely. */
+.win-xp-shell .start-menu-avatar {
+  width: calc(50 * var(--xp-scale));
+  height: calc(50 * var(--xp-scale));
+  flex: none;
+  border-radius: calc(2 * var(--xp-scale));
+  border: calc(2 * var(--xp-scale)) solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px calc(4 * var(--xp-scale)) rgba(0, 0, 0, 0.4);
+  background: #fff;
+  padding: calc(3 * var(--xp-scale));
+  object-fit: contain;
+}
+
+.win-xp-shell .start-menu-username {
+  /* Same stack as login-screen.css's own .login-screen-username, not the "xp Tahoma 8px" pixel face .start-menu-header would otherwise pass down — both are a real account name in the same Luna chrome, so they should read in the same typeface. */
+  font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
+  color: #fff;
+  font-weight: 700;
+  font-size: calc(15 * var(--xp-scale));
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+}
+
+.win-xp-shell .start-menu-header-bevel {
+  height: calc(2 * var(--xp-scale));
+  background: linear-gradient(
+    90deg,
+    #fff 0%,
+    #fff 21%,
+    #f6dcae 30%,
+    #d99a4e 37%,
+    #d99a4e 47%,
+    #eccc99 60%,
+    #d4e5fa 79%,
+    #d4e5fa 100%
+  );
+}
+
+.win-xp-shell .start-menu-body {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+}
+
+.win-xp-shell .start-menu-programs {
+  flex: 1 1 0;
   background: #fff;
   padding: calc(4 * var(--xp-scale));
   display: flex;
   flex-direction: column;
+}
+
+.win-xp-shell .start-menu-places {
+  flex: 1 1 0;
+  background: #d4e5fa;
+  border-left: calc(1 * var(--xp-scale)) solid #a5bad5;
+  padding: calc(4 * var(--xp-scale)) calc(4 * var(--xp-scale))
+    calc(20 * var(--xp-scale)) calc(2 * var(--xp-scale));
+  display: flex;
+  flex-direction: column;
+}
+
+.win-xp-shell .start-menu-places-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: calc(4 * var(--xp-scale)) 0;
+}
+
+.win-xp-shell .start-menu-places-group:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(8 * var(--xp-scale));
+  right: calc(8 * var(--xp-scale));
+  height: 1px;
+  background: linear-gradient(90deg, #d4e5fa 0%, #7fa8e6 50%, #d4e5fa 100%);
+}
+
+.win-xp-shell .start-menu-places .start-menu-item {
+  color: #0a2554;
 }
 
 .win-xp-shell .start-menu-item {
   display: flex;
   align-items: center;
   gap: calc(8 * var(--xp-scale));
-  padding: calc(4 * var(--xp-scale)) calc(8 * var(--xp-scale));
+  padding: calc(3 * var(--xp-scale)) calc(8 * var(--xp-scale));
   border-radius: calc(2 * var(--xp-scale));
   text-align: left;
   color: #222;
-  font-size: calc(15 * var(--xp-scale));
+  /* Same 16px as .desktop-icon: real XP drives both the desktop's icon labels and the Start menu's own item text off the same "Icon"/"Menu" appearance-scheme font size (Tahoma 8pt by default) — they're the same size by design, not just coincidentally close. */
+  font-size: calc(16 * var(--xp-scale));
+  line-height: 0.8;
 }
 
-.win-xp-shell .start-menu-item:hover,
-.win-xp-shell .start-menu-item:focus-visible {
-  background: #2e63d9 !important;
+/* Only real, clickable entries (both <button> menu items) get the hover/focus highlight — .start-menu-item-placeholder is a plain <div>, decorative until it has somewhere real to point to, so it never looks clickable. */
+.win-xp-shell button.start-menu-item:hover,
+.win-xp-shell button.start-menu-item:focus-visible {
+  background: #316ac6 !important;
+  border-radius: 0;
   color: #fff;
   outline: none;
+}
+
+/* Real XP's own keyboard-accelerator underline (Alt+<letter>) on "All Programs", "Log Off", and "Turn Off" — shown here unconditionally rather than only while Alt is held, same simplification the rest of this shell already makes elsewhere (there's no real keyboard-driven menu underneath to justify the conditional real XP has). */
+.win-xp-shell .start-menu-mnemonic {
+  text-decoration: underline;
+}
+
+/* Only "All Programs" is bold (xp Tahoma Bold 8px), so its own underline already renders at that face's own heavier default weight. "Log Off"/"Turn Off" are the regular face, and want a thinner, standard-weight rule instead of the bold-thick one that face would otherwise inherit. */
+.win-xp-shell .start-menu-footer .start-menu-mnemonic {
+  text-decoration-thickness: 1px;
+}
+
+.win-xp-shell .start-menu-item-bold {
+  font-family:
+    "xp Tahoma Bold 8px", "xp Tahoma Bold 8px fallback", Arial, sans-serif;
+  font-weight: 700;
+  -webkit-text-stroke: 0.01px transparent;
+}
+
+.win-xp-shell .start-menu-item-large {
+  gap: calc(10 * var(--xp-scale));
 }
 
 .win-xp-shell .start-menu-item-icon {
   width: calc(20 * var(--xp-scale));
   height: calc(20 * var(--xp-scale));
+  flex: none;
+}
+
+.win-xp-shell .start-menu-item-icon-large {
+  width: calc(32 * var(--xp-scale));
+  height: calc(32 * var(--xp-scale));
+}
+
+.win-xp-shell .start-menu-all-programs-divider {
+  margin: auto calc(14 * var(--xp-scale)) 0;
+  height: calc(1 * var(--xp-scale));
+  background: linear-gradient(
+    90deg,
+    #fff 0%,
+    #fff 3%,
+    #d3d3d3 15%,
+    #d3d3d3 65%,
+    #fff 78%,
+    #fff 100%
+  );
+}
+
+.win-xp-shell .start-menu-all-programs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8 * var(--xp-scale));
+  padding: calc(8 * var(--xp-scale)) calc(8 * var(--xp-scale))
+    calc(4 * var(--xp-scale));
+  color: #222;
+  font-family:
+    "xp Tahoma Bold 8px", "xp Tahoma Bold 8px fallback", Arial, sans-serif;
+  font-weight: 700;
+  /* Same 16px as .start-menu-item/.desktop-icon, same reasoning — this row is the same size class as the rest of the menu's own text, just bold. */
+  font-size: calc(16 * var(--xp-scale));
+  -webkit-text-stroke: 0.01px transparent;
+}
+
+.win-xp-shell .start-menu-all-programs-arrow {
+  width: calc(23 * var(--xp-scale));
+  height: calc(31 * var(--xp-scale));
+  flex: none;
 }
 
 .win-xp-shell .start-menu-footer {
   display: flex;
-  gap: calc(2 * var(--xp-scale));
-  background: #fff;
-  padding: calc(4 * var(--xp-scale));
-  border-top: calc(1 * var(--xp-scale)) solid #ccc;
+  justify-content: flex-end;
+  align-items: center;
+  gap: calc(12 * var(--xp-scale));
+  background: linear-gradient(var(--start-menu-footer-gradient));
+  border-top: 1px solid #3a6bc5;
+  padding: calc(8 * var(--xp-scale)) calc(10 * var(--xp-scale));
 }
 
 .win-xp-shell .start-menu-footer .start-menu-item {
-  flex: 1 1 0;
+  flex: none;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.win-xp-shell .start-menu-footer .start-menu-item-icon {
+  width: calc(24 * var(--xp-scale));
+  height: calc(24 * var(--xp-scale));
+}
+
+.win-xp-shell .start-menu-footer button.start-menu-item:hover,
+.win-xp-shell .start-menu-footer button.start-menu-item:focus-visible {
+  background: none !important;
+  color: #fff;
+}
+
+.win-xp-shell
+  .start-menu-footer
+  button.start-menu-item:hover
+  .start-menu-item-icon,
+.win-xp-shell
+  .start-menu-footer
+  button.start-menu-item:focus-visible
+  .start-menu-item-icon {
+  filter: brightness(1.15);
+}
+
+.win-xp-shell
+  .start-menu-footer
+  button.start-menu-item:active
+  .start-menu-item-icon {
+  filter: brightness(0.7);
 }
 
 /* XP-scoped.css's control buttons are natively 21x21px (its SVG icon backgrounds are drawn at viewBox="0 -0.5 21 21") — kept at that same 21 here (just scaled), not grown to fill the 30px-tall title bar: pixel-measured live (getBoundingClientRect), the rendered button-height/title-bar-height ratio comes out at exactly 0.7, i.e. 21/30, matching real XP's own proportions rather than looking cramped — sitting inside the title bar's own calc(4 * var(--xp-scale)) padding on every side rather than pushed edge to edge. Scaling the box here also needs `background-size: contain`, since XP-scoped.css never sets one. */

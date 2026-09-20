@@ -44,7 +44,9 @@ This project doubles as a learning exercise, so `docs/` contains short notes exp
 
 - The Desktop XP window styling is built on [XP.css](https://botoxparty.github.io/XP.css/) (MIT). The "Perfect DOS VGA 437 Win" font it bundles (used for `pre`) is by Zeh Fernando, free for personal and commercial use.
 
-- The Desktop shell's window/taskbar/Start Menu/desktop-icon chrome and the login screen's fine-print help text (`fonts/fs-tahoma-8px.woff2`, shared by `src/styles/desktop/desktop-shell.css` and `login-screen.css`) use ["fs Tahoma 8px"](https://fontstruct.com/fontstructions/show/735108) by ETHproductions on FontStruct, licensed CC BY-SA 3.0 — a pixel-art recreation of Tahoma at its classic small-size bitmap hinting, not the real Microsoft font. It replaces XP.css's own bundled "Pixelated MS Sans Serif" recreation, no longer used or shipped here.
+- The Desktop shell's window/taskbar/Start Menu/desktop-icon chrome and the login screen's fine-print help text (`fonts/xp-tahoma-8px.woff2`, shared by `src/styles/desktop/desktop-shell.css` and `login-screen.css`, referenced there as `xp Tahoma 8px`) use ["fs Tahoma 8px"](https://fontstruct.com/fontstructions/show/735108) by ETHproductions on FontStruct, licensed CC BY-SA 3.0 — a pixel-art recreation of Tahoma at its classic small-size bitmap hinting, not the real Microsoft font. It replaces XP.css's own bundled "Pixelated MS Sans Serif" recreation, no longer used or shipped here.
+
+- The Start Menu's own bold text (`fonts/xp-tahoma-bold-8px.otf`, in `src/styles/desktop/desktop-shell.css`, referenced there as `xp Tahoma Bold 8px`) uses ["MS Tahoma Bold - 8px"](https://fontstruct.com/fontstructions/show/2311440) by RRDVFGR on FontStruct, licensed CC0 1.0 Universal — the bold companion to "fs Tahoma 8px" above. Both fonts share the `xp` prefix internally (matching this shell's own `.win-xp-shell` naming) rather than each keeping its own FontStruct author's naming.
 
 ### Not openly licensed
 

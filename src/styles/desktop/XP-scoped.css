@@ -1,14 +1,14 @@
 /*!
  * Vendored from XP.css v0.2.6 (https://botoxparty.github.io/XP.css/), MIT-licensed.
  * All selectors scoped under .win-xp-shell via postcss-prefix-selector so its bare-element rules never leak into the rest of the site.
- * The "Perfect DOS VGA 437 Win" font bundled alongside this file (used for `pre`) is a fan recreation (not the real Microsoft font), freeware by Zeh Fernando. Most widget text below uses "fs Tahoma 8px" instead (its @font-face is in desktop-shell.css, shared shell-wide).
+ * The "Perfect DOS VGA 437 Win" font bundled alongside this file (used for `pre`) is a fan recreation (not the real Microsoft font), freeware by Zeh Fernando. Most widget text below uses "xp Tahoma 8px" instead (its @font-face is in desktop-shell.css, shared shell-wide).
  */
 /*! XP.css v0.2.6 - https://botoxparty.github.io/XP.css/ */
 @font-face {
   font-family: Perfect DOS VGA\437 Win;
   src:
-    url(fonts/PerfectDOSVGA437Win.woff2) format("woff2"),
-    url(fonts/PerfectDOSVGA437Win.woff) format("woff");
+    url(fonts/perfect-dos-vga-437-win.woff2) format("woff2"),
+    url(fonts/perfect-dos-vga-437-win.woff) format("woff");
   font-weight: 400;
   font-style: normal;
 }
@@ -131,7 +131,7 @@
 .win-xp-shell input,
 .win-xp-shell label,
 .win-xp-shell textarea {
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
   font-size: 17px;
 }
 .win-xp-shell textarea {
@@ -148,7 +148,7 @@
   outline: none;
 }
 .win-xp-shell select {
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
   font-size: 17px;
   border: none;
   background-color: #fff;
@@ -177,7 +177,7 @@
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='17' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0h16v17H0V0zm1 16h14V1H1v15z' fill='gray'/%3E%3Cpath fill='silver' d='M1 1h14v15H1z'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 7H5v1h1v1h1v1h1v1h1v-1h1V9h1V8h1V7z' fill='%23000'/%3E%3C/svg%3E");
 }
 .win-xp-shell option {
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
   font-size: 17px;
 }
 .win-xp-shell .vertical-bar {
@@ -462,7 +462,7 @@
   margin: 0;
 }
 .win-xp-shell ul.tree-view {
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
   font-size: 17px;
   display: block;
   background: #fff;
@@ -753,7 +753,7 @@
   gap: 0;
 }
 .win-xp-shell .status-bar-field {
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   box-shadow: none;
   padding: 1px 2px;
@@ -767,7 +767,7 @@
   border-right: none;
 }
 .win-xp-shell button {
-  font-family: "fs Tahoma 8px", "fs Tahoma 8px fallback", Arial, sans-serif;
+  font-family: "xp Tahoma 8px", "xp Tahoma 8px fallback", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   font-size: 17px;
   box-sizing: border-box;

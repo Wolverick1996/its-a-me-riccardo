@@ -42,9 +42,16 @@ This component **has to** be a client component: `useRouter()` and `useEffect()`
 
 This is exactly why, when we implement the switch between the "Desktop XP" shell and the "Nokia 3310" shell (see [`src/components/shell/ResponsiveShell.tsx`](../src/components/shell/ResponsiveShell.tsx)), we will **not** use `window.matchMedia` to decide which tree to mount, but responsive CSS classes (`hidden md:block` / `block md:hidden`): this way the generated markup is always identical both at build time and in the browser (both trees always exist in the DOM), and only which of the two is _visible_ changes — something CSS can decide without needing to know anything ahead of time.
 
+## `useId`: a hydration-safe unique id
+
+Sometimes a component needs to generate its own id at render time — not for styling, but because some HTML/SVG features only work by id reference, like an SVG gradient a shape's `fill` has to point at. A plain hardcoded string works until the component ever renders twice on the same page (two ids collide, and both shapes end up pointing at whichever gradient the browser resolves first); `Math.random()` or a module-level counter "fixes" that but breaks hydration instead, for the same reason `window.innerWidth` does above — the value the server computed while building the page and the value React computes the first time it runs in the browser are never the same, so React flags a mismatch.
+
+`useId()` is React's answer to exactly this: called during render, it returns a string that's stable across the server-render/hydration boundary (React coordinates it internally, keyed to the component's position in the tree) but still unique per mounted instance. [`src/components/desktop/StartMenu.tsx`](../src/components/desktop/StartMenu.tsx) uses it for the "All Programs" row's hand-drawn arrow: the arrow's `<path>` fills itself with `url(#${arrowGradientId})`, where `arrowGradientId` comes from `useId()` rather than a fixed string like `"arrowGradient"` — safe even if the Start menu were ever mounted more than once at a time.
+
 ## Source files these concepts map to
 
 Quick index back to the real code, so you can see each concept above in context instead of just in the abstract:
 
 - [`src/app/page.tsx`](../src/app/page.tsx) — the "/" page: a Server Component (no `"use client"`), which is what lets it render the `<meta>` fallback and be prerendered to plain HTML at build time.
 - [`src/components/redirect/ClientRedirect.tsx`](../src/components/redirect/ClientRedirect.tsx) — the Client Component that actually performs the redirect, using `useEffect`/`useRouter`, which only work in the browser.
+- [`src/components/desktop/StartMenu.tsx`](../src/components/desktop/StartMenu.tsx) — `useId()` naming the "All Programs" arrow's own SVG gradient.

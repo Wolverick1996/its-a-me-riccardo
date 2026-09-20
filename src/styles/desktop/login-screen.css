@@ -1,9 +1,9 @@
 /*! Chrome for LoginScreen, WelcomeScreen, and ShutdownScreen (src/components/desktop/), scoped under .win-xp-shell like desktop-shell.css. Kept in its own file since these screens aren't part of the desktop surface itself — they exist entirely before/after it. */
 
-/* The real "Microsoft Windows xp" wordmark's own typeface, supplied locally (fonts/OPTIFranklinGothic-Medium.otf) rather than only referenced by name — most systems (macOS included) don't have it installed, so without a bundled file the .login-screen-logo-text font-family below would silently fall back to Arial/Helvetica for nearly every visitor. */
+/* The real "Microsoft Windows xp" wordmark's own typeface, supplied locally (fonts/opti-franklin-gothic-medium.otf) rather than only referenced by name — most systems (macOS included) don't have it installed, so without a bundled file the .login-screen-logo-text font-family below would silently fall back to Arial/Helvetica for nearly every visitor. */
 @font-face {
   font-family: "Franklin Gothic Medium";
-  src: url("fonts/OPTIFranklinGothic-Medium.otf") format("opentype");
+  src: url("fonts/opti-franklin-gothic-medium.otf") format("opentype");
   font-weight: 500;
   font-style: normal;
 }
@@ -301,7 +301,7 @@
 }
 
 .login-screen-username {
-  /* Explicit font-family, not inherited: XP-scoped.css's own bare `button` rule sets "fs Tahoma 8px" on every button, which this span would otherwise inherit from its `.login-screen-user` button parent — the same Tahoma-first stack `.login-screen-shutdown-label` uses (that element isn't a button, so it never had this problem). */
+  /* Explicit font-family, not inherited: XP-scoped.css's own bare `button` rule sets "xp Tahoma 8px" on every button, which this span would otherwise inherit from its `.login-screen-user` button parent — the same Tahoma-first stack `.login-screen-shutdown-label` uses (that element isn't a button, so it never had this problem). */
   font-family: Tahoma, "Trebuchet MS", Verdana, Arial, sans-serif;
   font-size: calc(14 * var(--login-scale));
   font-weight: normal;
@@ -383,7 +383,7 @@
 
 .login-screen-help {
   font-family:
-    "fs Tahoma 8px", "fs Tahoma 8px fallback", Tahoma, Geneva, Verdana,
+    "xp Tahoma 8px", "xp Tahoma 8px fallback", Tahoma, Geneva, Verdana,
     sans-serif;
   font-size: calc(11 * var(--login-scale));
   line-height: 0.85;

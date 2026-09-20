@@ -6,9 +6,8 @@ import { useSessionStore } from "@/store/useSessionStore";
 import { useCursorStore } from "@/store/useCursorStore";
 import { playSessionSound } from "@/lib/playSessionSound";
 import XpLogo from "./XpLogo";
+import { ACCOUNT_NAME, ACCOUNT_AVATAR } from "./account";
 
-/** Single hard-coded account, same treatment StartMenu.tsx already gives its own "RickXP" header text — this is Desktop shell chrome, not shared portfolio content, so it doesn't belong in src/content/. */
-const ACCOUNT_NAME = "Riccardo Corona";
 /** Real XP shows a status line under the account name ("n programs running.") — this stands in for it the same way the rest of this screen swaps real XP chrome for personal-site equivalents. */
 const ACCOUNT_ROLE = "Software Engineer";
 
@@ -79,7 +78,7 @@ export default function LoginScreen() {
             })}
             onClick={handleLogIn}
           >
-            <img src="/user-7.svg" alt="" className="login-screen-avatar" />
+            <img src={ACCOUNT_AVATAR} alt="" className="login-screen-avatar" />
             <div className="login-screen-user-info">
               <span className="login-screen-username">{ACCOUNT_NAME}</span>
               <span className="login-screen-user-role">{ACCOUNT_ROLE}</span>
